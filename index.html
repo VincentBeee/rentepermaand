@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annuïteiten Calculator | RentePerMaand.nl</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+        .input-group { margin-bottom: 1rem; }
+        label { display: block; font-weight: bold; }
+        input { width: 100%; padding: 0.5rem; margin-top: 0.2rem; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #0056b3; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; }
+        #resultaat { margin-top: 2rem; padding: 1rem; background: #f4f4f4; border-radius: 4px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Annuïteiten Calculator</h1>
+    <p>Bereken eenvoudig je maandelijkse annuïteit.</p>
+
+    <div class="input-group">
+        <label>Leningbedrag (€):</label>
+        <input type="number" id="bedrag" placeholder="Bijv. 250000">
+    </div>
+    <div class="input-group">
+        <label>Jaarlijkse rente (%):</label>
+        <input type="number" id="rente" step="0.01" placeholder="Bijv. 3.5">
+    </div>
+    <div class="input-group">
+        <label>Looptijd (jaren):</label>
+        <input type="number" id="jaren" placeholder="Bijv. 30">
+    </div>
+    <button onclick="bereken()">Bereken Maandlast</button>
+
+    <div id="resultaat">
+        <h3>Resultaat:</h3>
+        <p>Jouw maandbedrag is: <strong>€ <span id="uitkomst"></span></strong></p>
+    </div>
+
+    <script>
+        function bereken() {
+            const P = parseFloat(document.getElementById('bedrag').value);
+            const r = parseFloat(document.getElementById('rente').value) / 100 / 12;
+            const n = parseFloat(document.getElementById('jaren').value) * 12;
+
+            if (P && r && n) {
+                const M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                document.getElementById('uitkomst').innerText = M.toFixed(2);
+                document.getElementById('resultaat').style.display = 'block';
+            } else {
+                alert('Vul alle velden correct in.');
+            }
+        }
+    </script>
+</body>
+</html>
