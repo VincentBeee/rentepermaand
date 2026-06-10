@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annuïteiten Calculator — Bereken Maandlast Hypotheek & Lening | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken direct je annuïteit: exacte maandlast, totale rente en aflossingsschema voor je hypotheek of lening. Gratis online tool met tabel en grafiek.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/annuiteitencalculator">
+  <meta property="og:title" content="Annuïteiten Calculator — Maandlast berekenen">
+  <meta property="og:description" content="Bereken je exacte maandlast, totale rente en volledig aflossingsschema. Gratis, direct resultaat.">
+  <meta property="og:url" content="https://rentepermaand.nl/annuiteitencalculator">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <!-- Schema.org: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Annuïteiten Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken de maandlast, totale rente en volledig aflossingsschema voor een annuïteitenlening of hypotheek.",
+    "url": "https://rentepermaand.nl/annuiteitencalculator",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <!-- Schema.org: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is een annuïteit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Een annuïteit is een gelijkblijvend periodiek bedrag dat je betaalt voor een lening of hypotheek. Elke maand betaal je hetzelfde totaalbedrag, maar de verhouding tussen rente en aflossing verandert: in het begin betaal je relatief veel rente, later steeds meer aflossing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe bereken je een annuïteit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De formule voor een annuïteit is: A = L × [r(1+r)^n] / [(1+r)^n - 1], waarbij L het leenbedrag is, r de maandelijkse rente (jaarrente ÷ 12) en n het aantal maanden."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat is het verschil tussen annuïteit en lineaire aflossing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Bij annuïteit is de maandlast altijd gelijk, maar betaal je in totaal meer rente. Bij lineaire aflossing daalt je maandlast elke maand, maar begin je met hogere betalingen. Lineaire aflossing is goedkoper over de gehele looptijd."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* Chart legend labels */
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--grey-text);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .progress-note {
+      font-size: 0.78rem;
+      text-align: center;
+      color: var(--grey-mid);
+      margin-top: 6px;
+    }
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html" class="active">Annuïteiten</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Annuïteiten Calculator</h1>
+        <p>Bereken je exacte maandlast, de totale rentekosten en een volledig aflossingsschema voor elke lening of hypotheek.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Bereken je annuïteit</h2>
+            <p>Vul de gegevens in — het resultaat wordt direct bijgewerkt</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="leenbedrag">Leenbedrag</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="leenbedrag" value="300000" min="1000" max="10000000" step="1000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="leenbedrag-slider" min="10000" max="1000000" step="5000" value="300000">
+                <div class="slider-labels"><span>€10.000</span><span>€1.000.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="rente">Jaarrente</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rente" value="4.5" min="0.01" max="30" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="rente-slider" min="0.5" max="15" step="0.1" value="4.5">
+                  <div class="slider-labels"><span>0,5%</span><span>15%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="looptijd">Looptijd (jaren)</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="looptijd" value="30" min="1" max="50" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="looptijd-slider" min="1" max="50" step="1" value="30">
+                  <div class="slider-labels"><span>1 jr</span><span>50 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Maandlast</div>
+                  <div class="result-value large accent" id="res-maandlast">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal terugbetalen</div>
+                  <div class="result-value" id="res-totaal">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totale rente</div>
+                  <div class="result-value" id="res-rente">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Renteverhouding</div>
+                  <div class="result-value" id="res-pct">—</div>
+                </div>
+              </div>
+
+              <div class="split-bar-wrap">
+                <div class="split-bar-label">
+                  <span class="lbl-aflossing" id="bar-aflossing-pct">Aflossing</span>
+                  <span class="lbl-rente" id="bar-rente-pct">Rente</span>
+                </div>
+                <div class="split-bar" aria-hidden="true">
+                  <div class="split-bar-fill" id="split-fill" style="width:50%"></div>
+                </div>
+                <div class="split-bar-note">Van elke euro die je betaalt</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Verloop over de looptijd</h3>
+              <div class="chart-wrap">
+                <canvas id="amort-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#E8A020"></div> Rente per jaar</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Aflossing per jaar</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D;opacity:0.4"></div> Resterende schuld</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Amortisatietabel -->
+        <div class="calc-card" style="margin-top:20px;">
+          <div class="calc-header">
+            <h2>Aflossingsschema</h2>
+            <p>Maandelijks overzicht van rente, aflossing en restschuld</p>
+          </div>
+          <div class="calc-body">
+            <div class="table-section">
+              <button class="table-toggle" id="table-toggle" aria-expanded="false">
+                <span>Toon volledig aflossingsschema</span>
+                <span class="icon">▼</span>
+              </button>
+              <div class="amort-table-wrap" id="amort-table-wrap">
+                <table id="amort-table">
+                  <thead>
+                    <tr>
+                      <th>Maand</th>
+                      <th>Rente</th>
+                      <th>Aflossing</th>
+                      <th>Maandlast</th>
+                      <th>Restschuld</th>
+                    </tr>
+                  </thead>
+                  <tbody id="amort-tbody"></tbody>
+                </table>
+              </div>
+              <button class="export-btn" id="export-csv" style="display:none">
+                ⬇ Exporteer naar CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen Calculator
+            </a>
+            <a href="#">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+            <a href="#">
+              <div class="tool-icon">📈</div>
+              Compound Interest
+            </a>
+            <a href="#">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+            <a href="#">
+              <div class="tool-icon">🔄</div>
+              Rente-omrekenaar
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Wist je dat?</h3>
+          <div class="tip-box">
+            <p><strong>Bij een 30-jarige hypotheek</strong> van €300.000 op 4,5% betaal je meer dan €240.000 aan rente — bijna evenveel als het leenbedrag zelf.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>1% hogere rente</strong> op €300.000 looptijd 30 jaar kost je ruim €60.000 extra aan rentelasten.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>10 jaar korter</strong> aflossen op dezelfde lening scheelt vaak meer dan €80.000 aan rentekosten.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is een annuïteitenlening?</h2>
+      <p>Een annuïteitenlening is de meest voorkomende vorm van een hypotheek of persoonlijke lening in Nederland. Het kenmerk: je betaalt elke maand hetzelfde bedrag. Dat bedrag is de <strong>annuïteit</strong> — samengesteld uit een rentedeel en een aflosssingsdeel.</p>
+      <p>In het begin van de looptijd is het rentedeel groot en het aflosssingsdeel klein. Naarmate de schuld afneemt, verschuift de verhouding: je betaalt steeds minder rente en steeds meer aflossing. De maandlast blijft echter precies gelijk.</p>
+
+      <h2>De formule voor een annuïteit</h2>
+      <p>De berekening van een annuïteit is wiskundig precies te bepalen met de volgende formule:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Annuïteitenformule</div>
+        <div class="formula">
+          A = <var>L</var> × [<var>r</var>(1+<var>r</var>)<sup><var>n</var></sup>] / [(1+<var>r</var>)<sup><var>n</var></sup> − 1]
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">A</span> = maandelijkse annuïteit (maandlast)<br>
+          <span style="color:#F4C560">L</span> = hoofdsom (leenbedrag)<br>
+          <span style="color:#F4C560">r</span> = maandelijkse rente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span> = looptijd in maanden (jaren × 12)
+        </div>
+      </div>
+
+      <h2>Hoe werkt de calculator?</h2>
+      <p>Onze annuïteiten calculator berekent op basis van drie invoervelden:</p>
+      <ul>
+        <li><strong>Leenbedrag:</strong> het totale bedrag dat je leent, bijv. de hypotheeksom</li>
+        <li><strong>Jaarrente:</strong> de nominale jaarrente die je bank hanteert</li>
+        <li><strong>Looptijd:</strong> de periode in jaren (hypotheken: meestal 30 jaar)</li>
+      </ul>
+      <p>Aan de hand van de annuïteitenformule berekent de tool direct je maandlast, de totale rentekosten over de gehele looptijd, en het volledige maandelijkse aflossingsschema dat je kunt exporteren naar CSV.</p>
+
+      <h2>Annuïteit vs. lineaire aflossing</h2>
+      <p>Er zijn twee hoofdvormen van aflossen bij hypotheken in Nederland:</p>
+      <ul>
+        <li><strong>Annuïtair:</strong> gelijkblijvende maandlast, in het begin relatief veel rente. Voordeel: stabiele, voorspelbare maandlasten.</li>
+        <li><strong>Lineair:</strong> gelijkblijvende aflossing per maand, waardoor de maandlast daalt. Begin je hoger, maar totaal goedkoper door minder rente.</li>
+      </ul>
+      <p>Welk systeem voordeliger is, hangt af van jouw situatie. Bij een annuïtaire hypotheek betaal je in totaal meer rente, maar de beginmaandlasten zijn lager. Bij een lineaire hypotheek begin je met hogere maandlasten maar is het totale rentebedrag lager.</p>
+
+      <h2>Hypotheekrente aftrekbaar</h2>
+      <p>In Nederland is de hypotheekrente onder bepaalde voorwaarden fiscaal aftrekbaar. Dit geldt voor de eigen woning die als hoofdverblijf dient. De aftrek wordt jaarlijks afgebouwd. Raadpleeg de Belastingdienst of een financieel adviseur voor je persoonlijke situatie.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Wat is het verschil tussen nominale en effectieve rente?</dt>
+          <dd>De nominale rente is het rentepercentage op jaarbasis dat je bank communiceert. De effectieve rente houdt rekening met het renteaanrekeningsmoment (maandelijks bij een hypotheek). Omdat rente op rente wordt berekend, is de effectieve jaarrente iets hoger dan de nominale rente.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Klopt mijn maandlastberekening met wat de bank zegt?</dt>
+          <dd>Onze calculator gebruikt de standaard annuïteitenformule. Kleine verschillen met de bank zijn mogelijk door afrondingen of specifieke voorwaarden in je hypotheekcontract. Gebruik de uitkomst als indicatie; controleer altijd de offerte van je bank.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik het aflossingsschema opslaan?</dt>
+          <dd>Ja. Klik op "Exporteer naar CSV" onder het aflossingsschema. Je kunt het bestand daarna openen in Excel of Google Sheets.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is een passende looptijd voor een hypotheek?</dt>
+          <dd>In Nederland is 30 jaar de standaard looptijd voor een hypotheek. Een kortere looptijd (bijv. 20 jaar) geeft een hogere maandlast maar lagere totale rentekosten. Een langere looptijd geeft lagere maandlasten maar meer totale rente.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="#">Privacy</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ── State ──
+    let amortData = [];
+    let chart = null;
+
+    // ── DOM refs ──
+    const elLeenbedrag    = document.getElementById('leenbedrag');
+    const elLeenSlider    = document.getElementById('leenbedrag-slider');
+    const elRente         = document.getElementById('rente');
+    const elRenteSlider   = document.getElementById('rente-slider');
+    const elLooptijd      = document.getElementById('looptijd');
+    const elLooptijdSlider= document.getElementById('looptijd-slider');
+    const elMaandlast     = document.getElementById('res-maandlast');
+    const elTotaal        = document.getElementById('res-totaal');
+    const elRenteRes      = document.getElementById('res-rente');
+    const elPct           = document.getElementById('res-pct');
+    const elSplitFill     = document.getElementById('split-fill');
+    const elBarAfl        = document.getElementById('bar-aflossing-pct');
+    const elBarRente      = document.getElementById('bar-rente-pct');
+    const elTbody         = document.getElementById('amort-tbody');
+    const elToggle        = document.getElementById('table-toggle');
+    const elTableWrap     = document.getElementById('amort-table-wrap');
+    const elExportBtn     = document.getElementById('export-csv');
+
+    // ── Sync slider ↔ input ──
+    function syncPair(input, slider) {
+      input.addEventListener('input', () => { slider.value = input.value; calculate(); });
+      slider.addEventListener('input', () => { input.value = slider.value; calculate(); });
+    }
+    syncPair(elLeenbedrag, elLeenSlider);
+    syncPair(elRente, elRenteSlider);
+    syncPair(elLooptijd, elLooptijdSlider);
+
+    // ── Format helpers ──
+    const fmtEur = v => '€\u202F' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€\u202F' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // ── Core calculation ──
+    function calculate() {
+      const L = parseFloat(elLeenbedrag.value) || 0;
+      const j = parseFloat(elRente.value) || 0;
+      const jaren = parseInt(elLooptijd.value) || 0;
+
+      if (L <= 0 || j <= 0 || jaren <= 0) return;
+
+      const r = j / 100 / 12;
+      const n = jaren * 12;
+      const annuiteit = L * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+      const totaal = annuiteit * n;
+      const totaalRente = totaal - L;
+      const rentePct = (totaalRente / totaal * 100).toFixed(1);
+      const aflPct = (100 - parseFloat(rentePct)).toFixed(1);
+
+      // Update results
+      elMaandlast.textContent  = fmtEurDec(annuiteit);
+      elTotaal.textContent     = fmtEur(totaal);
+      elRenteRes.textContent   = fmtEur(totaalRente);
+      elPct.textContent        = rentePct + '%';
+      elSplitFill.style.width  = aflPct + '%';
+      elBarAfl.textContent     = 'Aflossing ' + aflPct + '%';
+      elBarRente.textContent   = 'Rente ' + rentePct + '%';
+
+      // Build amortization schedule
+      amortData = [];
+      let saldo = L;
+      for (let m = 1; m <= n; m++) {
+        const renteDeel = saldo * r;
+        const aflDeel   = annuiteit - renteDeel;
+        saldo -= aflDeel;
+        if (saldo < 0.005) saldo = 0;
+        amortData.push({ m, renteDeel, aflDeel, annuiteit, saldo });
+      }
+
+      buildChart(amortData, jaren);
+      if (elTableWrap.classList.contains('visible')) buildTable();
+    }
+
+    // ── Chart ──
+    function buildChart(data, jaren) {
+      const ctx = document.getElementById('amort-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      // Aggregate yearly
+      const labels = [], renteJaar = [], aflJaar = [], restJaar = [];
+      const perJaar = 12;
+      for (let y = 0; y < jaren; y++) {
+        const slice = data.slice(y * perJaar, (y+1) * perJaar);
+        if (!slice.length) break;
+        labels.push('Jaar ' + (y + 1));
+        renteJaar.push(parseFloat(slice.reduce((a,b) => a + b.renteDeel, 0).toFixed(0)));
+        aflJaar.push(parseFloat(slice.reduce((a,b) => a + b.aflDeel, 0).toFixed(0)));
+        restJaar.push(parseFloat(slice[slice.length-1].saldo.toFixed(0)));
+      }
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Rente',
+              data: renteJaar,
+              backgroundColor: '#E05A40',
+              borderRadius: 3,
+              stack: 'betaling'
+            },
+            {
+              label: 'Aflossing',
+              data: aflJaar,
+              backgroundColor: '#2A9D6A',
+              borderRadius: 3,
+              stack: 'betaling'
+            },
+            {
+              label: 'Restschuld',
+              data: restJaar,
+              type: 'line',
+              borderColor: '#0F1F3D',
+              backgroundColor: 'rgba(15,31,61,0.08)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.3,
+              yAxisID: 'y2'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: {
+            callbacks: {
+              label: ctx => ' ' + ctx.dataset.label + ': ' + fmtEur(ctx.parsed.y)
+            }
+          }},
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { font: { size: 11 }, color: '#6B7A8D',
+                maxTicksLimit: Math.min(jaren, 15)
+              }
+            },
+            y: {
+              stacked: true,
+              grid: { color: '#E8ECF0' },
+              ticks: { font: { size: 11 }, color: '#6B7A8D',
+                callback: v => '€' + (v/1000).toFixed(0) + 'k'
+              }
+            },
+            y2: {
+              position: 'right',
+              grid: { display: false },
+              ticks: { font: { size: 11 }, color: '#6B7A8D',
+                callback: v => '€' + (v/1000).toFixed(0) + 'k'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ── Table ──
+    function buildTable() {
+      const rows = amortData.map((d, i) => {
+        const isYear = d.m % 12 === 0;
+        return `<tr class="${isYear ? 'milestone' : ''}">
+          <td>${d.m}</td>
+          <td class="td-rente">${fmtEurDec(d.renteDeel)}</td>
+          <td class="td-aflossing">${fmtEurDec(d.aflDeel)}</td>
+          <td>${fmtEurDec(d.annuiteit)}</td>
+          <td>${fmtEurDec(d.saldo)}</td>
+        </tr>`;
+      });
+      elTbody.innerHTML = rows.join('');
+    }
+
+    // ── Toggle table ──
+    elToggle.addEventListener('click', () => {
+      const open = elTableWrap.classList.toggle('visible');
+      elToggle.classList.toggle('open', open);
+      elToggle.setAttribute('aria-expanded', open);
+      elToggle.querySelector('span').textContent = open ? 'Verberg aflossingsschema' : 'Toon volledig aflossingsschema';
+      elExportBtn.style.display = open ? 'flex' : 'none';
+      if (open && !elTbody.children.length) buildTable();
+    });
+
+    // ── CSV Export ──
+    elExportBtn.addEventListener('click', () => {
+      const L = elLeenbedrag.value;
+      const r = elRente.value;
+      const n = elLooptijd.value;
+      const header = 'Maand,Rente (€),Aflossing (€),Maandlast (€),Restschuld (€)\n';
+      const rows = amortData.map(d =>
+        `${d.m},${d.renteDeel.toFixed(2)},${d.aflDeel.toFixed(2)},${d.annuiteit.toFixed(2)},${d.saldo.toFixed(2)}`
+      ).join('\n');
+      const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `annuiteitenschema-${L}eu-${r}pct-${n}jr.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Init ──
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

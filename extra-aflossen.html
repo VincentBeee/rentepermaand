@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extra Aflossen Calculator — Bereken Rentebesparing Hypotheek | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken hoeveel je bespaart door extra af te lossen op je hypotheek. Zie direct de besparing in rente, resterende looptijd en het verschil per maand.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/extra-aflossen">
+  <meta property="og:title" content="Extra Aflossen Calculator — Hoeveel bespaar je?">
+  <meta property="og:description" content="Bereken de exacte besparing bij extra aflossing op je hypotheek of lening. Directe vergelijking met en zonder aflossing.">
+  <meta property="og:url" content="https://rentepermaand.nl/extra-aflossen">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Extra Aflossen Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken de rentebesparing en looptijdreductie bij extra aflossing op een hypotheek of lening.",
+    "url": "https://rentepermaand.nl/extra-aflossen",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Hoeveel mag ik boetevrij extra aflossen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De meeste hypotheekverstrekkers staan een boetevrije extra aflossing toe van 10% tot 20% van de oorspronkelijke hypotheeksom per jaar. Check altijd je eigen hypotheekcontract voor de exacte voorwaarden."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is extra aflossen altijd slim?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Niet altijd. Extra aflossen is voordelig als de hypotheekrente hoger is dan het rendement op sparen of beleggen. Bij een lage hypotheekrente en hoog verwacht beleggingsrendement kan het aantrekkelijker zijn om te beleggen. Overweeg ook het belastingvoordeel via hypotheekrenteaftrek."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 0;
+    }
+    .comparison-col {
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .comparison-col.without {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .comparison-col.with {
+      background: rgba(42,157,106,0.15);
+      border: 1px solid rgba(42,157,106,0.3);
+    }
+    .col-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .without .col-label { color: rgba(255,255,255,0.45); }
+    .with .col-label { color: #2A9D6A; }
+    .comparison-col .result-value { font-size: 1.3rem; }
+
+    .savings-hero {
+      text-align: center;
+      padding: 24px;
+      background: rgba(42,157,106,0.12);
+      border-radius: var(--radius);
+      margin-top: 20px;
+      border: 1px solid rgba(42,157,106,0.25);
+    }
+    .savings-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2A9D6A;
+      margin-bottom: 8px;
+    }
+    .savings-amount {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      color: #2A9D6A;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .savings-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+    }
+
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--grey-text);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+      .comparison-grid { grid-template-columns: 1fr; }
+      .savings-amount { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="extra-aflossen.html" class="active">Extra Aflossen</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Extra Aflossen Calculator</h1>
+        <p>Bereken precies hoeveel je bespaart in rente en looptijd door nu een extra bedrag af te lossen op je hypotheek of lening.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Bereken je besparing</h2>
+            <p>Vergelijk je situatie met én zonder extra aflossing</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="huidige-schuld">Huidige restschuld</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="huidige-schuld" value="250000" min="1000" max="5000000" step="1000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="schuld-slider" min="10000" max="1000000" step="5000" value="250000">
+                <div class="slider-labels"><span>€10.000</span><span>€1.000.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="rente2">Jaarrente</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rente2" value="4.5" min="0.1" max="20" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="rente2-slider" min="0.5" max="12" step="0.1" value="4.5">
+                  <div class="slider-labels"><span>0,5%</span><span>12%</span></div>
+                </div>
+              </div>
+              <div class="field-group">
+                <label for="restlooptijd">Resterende looptijd (jaren)</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="restlooptijd" value="25" min="1" max="50" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="looptijd2-slider" min="1" max="50" step="1" value="25">
+                  <div class="slider-labels"><span>1 jr</span><span>50 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="extra-aflossing">Extra aflossing (eenmalig)</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="extra-aflossing" value="10000" min="0" max="1000000" step="500" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="extra-slider" min="0" max="100000" step="500" value="10000">
+                <div class="slider-labels"><span>€0</span><span>€100.000</span></div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Vergelijking</h3>
+
+              <div class="comparison-grid">
+                <div class="comparison-col without">
+                  <div class="col-label">Zonder aflossing</div>
+                  <div class="result-item">
+                    <div class="result-label">Maandlast</div>
+                    <div class="result-value" id="r-maand-zonder">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totale rente</div>
+                    <div class="result-value" id="r-rente-zonder">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Looptijd</div>
+                    <div class="result-value" id="r-loop-zonder">—</div>
+                  </div>
+                </div>
+
+                <div class="comparison-col with">
+                  <div class="col-label">Met aflossing</div>
+                  <div class="result-item">
+                    <div class="result-label">Maandlast</div>
+                    <div class="result-value" id="r-maand-met">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totale rente</div>
+                    <div class="result-value" id="r-rente-met">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Looptijd</div>
+                    <div class="result-value" id="r-loop-met">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="savings-hero">
+                <div class="savings-label">Totale besparing</div>
+                <div class="savings-amount" id="savings-amount">—</div>
+                <div class="savings-sub" id="savings-sub">aan rentekosten over de resterende looptijd</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Restschuld over de tijd</h3>
+              <div class="chart-wrap">
+                <canvas id="compare-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#E05A40"></div> Zonder extra aflossing</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Met extra aflossing</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="#">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+            <a href="#">
+              <div class="tool-icon">📈</div>
+              Compound Interest
+            </a>
+            <a href="#">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Wanneer extra aflossen?</h3>
+          <div class="tip-box">
+            <p><strong>Goed moment:</strong> als je een bonus of erfenis ontvangt, de WOZ-waarde is gestegen of je hypotheekrente hoger is dan het rendement op sparen.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Let op:</strong> de meeste banken staan 10–20% van de oorspronkelijke hoofdsom boetevrij extra aflossen per jaar. Bij overschrijding rekent de bank mogelijk een vergoeding.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Belastingvoordeel:</strong> minder schuld betekent minder aftrekbare hypotheekrente. Bij hoge inkomsten kan dit het netto-voordeel verkleinen.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Waarom extra aflossen op je hypotheek?</h2>
+      <p>Extra aflossen verlaagt je resterende schuld direct, waardoor je over de resterende looptijd minder rente betaalt. Het effect is groter dan de meeste mensen verwachten: een extra aflossing van €10.000 op een hypotheek van €250.000 bij 4,5% rente bespaart je al snel €8.000 tot €15.000 aan rentekosten, afhankelijk van de resterende looptijd.</p>
+
+      <h2>Hoe werkt de berekening?</h2>
+      <p>De calculator vergelijkt twee scenario's voor jouw lening:</p>
+      <ul>
+        <li><strong>Scenario A — Geen extra aflossing:</strong> je blijft je huidige annuïteit betalen over de resterende looptijd.</li>
+        <li><strong>Scenario B — Eenmalige extra aflossing:</strong> je verlaagt je schuld direct met het opgegeven bedrag, waarna de maandlast opnieuw wordt berekend over de resterende looptijd.</li>
+      </ul>
+      <p>Het verschil in totale rentekosten tussen beide scenario's is je besparing. De grafiek toont hoe je restschuld in beide gevallen daalt over de tijd.</p>
+
+      <h2>Extra aflossen of beleggen?</h2>
+      <p>Dit is een van de meest gestelde financiële vragen in Nederland. Het antwoord hangt af van meerdere factoren:</p>
+      <ul>
+        <li><strong>Je hypotheekrente:</strong> hoe hoger de rente, hoe aantrekkelijker aflossen</li>
+        <li><strong>Verwacht beleggingsrendement:</strong> historisch gemiddeld 6–8% bij een wereldwijde aandelenindex</li>
+        <li><strong>Hypotheekrenteaftrek:</strong> verlaagt het effectieve rentepercentage</li>
+        <li><strong>Risicotolerantie:</strong> beleggen brengt koersrisico met zich mee</li>
+      </ul>
+      <p>Als vuistregel: is je netto hypotheekrente (na aftrek) lager dan het verwachte beleggingsrendement, dan kan beleggen voordeliger zijn op de lange termijn. Is de rente hoog en het risico van beleggen ongewenst, dan is aflossen de veilige keuze.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Hoeveel mag ik boetevrij aflossen?</dt>
+          <dd>De meeste hypotheekverstrekkers staan een boetevrije extra aflossing toe van 10% tot 20% van de oorspronkelijke hypotheeksom per jaar. Controleer je hypotheekcontract of bel je bank voor de exacte grens. Aflossen boven het boetevrije bedrag kan leiden tot een vergoedingsrente.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Daalt mijn maandlast na een extra aflossing?</dt>
+          <dd>Dat hangt af van je bank en type hypotheek. Bij sommige hypotheken daalt de maandlast automatisch na extra aflossing. Bij anderen blijft de maandlast gelijk en wordt de looptijd korter. Je kunt ook kiezen voor een combinatie. Overleg dit altijd met je hypotheekverstrekker.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik ook maandelijks extra aflossen?</dt>
+          <dd>Ja. Maandelijks een klein bedrag extra aflossen heeft over de lange termijn een significant effect door het samengesteld renteprincipe. Sommige banken bieden hiervoor een aparte 'extra aflossing per maand'-optie aan.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Klopt de berekening precies met mijn bank?</dt>
+          <dd>De calculator gebruikt de standaard annuïteitenformule. Kleine verschillen met je bank zijn mogelijk door afrondingen of specifieke hypotheekvoorwaarden. Gebruik de uitkomst als indicatie voor je financiële beslissing en bespreek het exacte voordeel met je hypotheekadviseur.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="#">Privacy</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+    const fmtEur = v => '€\u202F' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€\u202F' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('huidige-schuld'), document.getElementById('schuld-slider'));
+    syncPair(document.getElementById('rente2'), document.getElementById('rente2-slider'));
+    syncPair(document.getElementById('restlooptijd'), document.getElementById('looptijd2-slider'));
+    syncPair(document.getElementById('extra-aflossing'), document.getElementById('extra-slider'));
+
+    function annuiteit(L, r, n) {
+      if (r === 0) return L / n;
+      return L * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+    }
+
+    function totalRente(L, ann, n) {
+      return ann * n - L;
+    }
+
+    function buildSchedule(L, r, n) {
+      const ann = annuiteit(L, r, n);
+      const saldi = [L];
+      let saldo = L;
+      for (let m = 0; m < n; m++) {
+        const rent = saldo * r;
+        const afl  = ann - rent;
+        saldo = Math.max(0, saldo - afl);
+        saldi.push(saldo);
+      }
+      return { ann, saldi };
+    }
+
+    function calculate() {
+      const L     = parseFloat(document.getElementById('huidige-schuld').value) || 0;
+      const j     = parseFloat(document.getElementById('rente2').value) || 0;
+      const jaren = parseInt(document.getElementById('restlooptijd').value) || 0;
+      const extra = parseFloat(document.getElementById('extra-aflossing').value) || 0;
+
+      if (L <= 0 || j <= 0 || jaren <= 0) return;
+
+      const r = j / 100 / 12;
+      const n = jaren * 12;
+
+      // Scenario A: no extra
+      const { ann: annA, saldi: saldiA } = buildSchedule(L, r, n);
+      const renteA = totalRente(L, annA, n);
+
+      // Scenario B: with extra
+      const LB = Math.max(0, L - extra);
+      const { ann: annB, saldi: saldiB } = buildSchedule(LB, r, n);
+      const renteB = totalRente(LB, annB, n);
+
+      const besparing = renteA - renteB;
+      const maandDiff = annA - annB;
+
+      // Update DOM
+      document.getElementById('r-maand-zonder').textContent = fmtEurDec(annA);
+      document.getElementById('r-rente-zonder').textContent = fmtEur(renteA);
+      document.getElementById('r-loop-zonder').textContent  = jaren + ' jr';
+      document.getElementById('r-maand-met').textContent    = fmtEurDec(annB);
+      document.getElementById('r-rente-met').textContent    = fmtEur(renteB);
+      document.getElementById('r-loop-met').textContent     = jaren + ' jr';
+      document.getElementById('savings-amount').textContent = fmtEur(besparing);
+      document.getElementById('savings-sub').textContent    =
+        `Besparing op rentekosten + €${Math.round(maandDiff).toLocaleString('nl-NL')}/mnd lagere maandlast`;
+
+      buildChart(saldiA, saldiB, jaren);
+    }
+
+    function buildChart(saldiA, saldiB, jaren) {
+      const ctx = document.getElementById('compare-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      // Sample yearly
+      const labels = ['Nu'];
+      const dataA  = [saldiA[0]];
+      const dataB  = [saldiB[0]];
+      for (let y = 1; y <= jaren; y++) {
+        labels.push('Jaar ' + y);
+        dataA.push(saldiA[Math.min(y * 12, saldiA.length - 1)]);
+        dataB.push(saldiB[Math.min(y * 12, saldiB.length - 1)]);
+      }
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Zonder extra aflossing',
+              data: dataA,
+              borderColor: '#E05A40',
+              backgroundColor: 'rgba(224,90,64,0.08)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Met extra aflossing',
+              data: dataB,
+              borderColor: '#2A9D6A',
+              backgroundColor: 'rgba(42,157,106,0.1)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ' ' + ctx.dataset.label + ': ' + fmtEur(ctx.parsed.y)
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 12 }
+            },
+            y: {
+              grid: { color: '#E8ECF0' },
+              ticks: {
+                font: { size: 11 }, color: '#6B7A8D',
+                callback: v => '€' + (v/1000).toFixed(0) + 'k'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>
