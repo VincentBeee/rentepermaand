@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rente-omrekenaar — Nominale naar Effectieve Rente | RentePerMaand.nl</title>
+  <meta name="description" content="Reken nominale rente om naar effectieve jaarrente (EAR) en vice versa. Gratis rente-omrekenaar voor alle compounding-frequenties: dagelijks, maandelijks, kwartaal en jaarlijks.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/rente-omrekenaar">
+  <meta property="og:title" content="Rente-omrekenaar — Nominale naar Effectieve Rente">
+  <meta property="og:description" content="Reken snel nominale rente om naar effectieve jaarrente. Vergelijk alle compounding-frequenties.">
+  <meta property="og:url" content="https://rentepermaand.nl/rente-omrekenaar">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Rente-omrekenaar",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Reken nominale rente om naar effectieve jaarrente voor alle compounding-frequenties.",
+    "url": "https://rentepermaand.nl/rente-omrekenaar",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is het verschil tussen nominale en effectieve rente?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De nominale rente is het gepubliceerde jaarpercentage zonder rekening te houden met de compounding-frequentie. De effectieve jaarrente (EAR) houdt wél rekening met hoe vaak rente wordt bijgeschreven. Hoe vaker bijschrijving plaatsvindt, hoe hoger de EAR ten opzichte van de nominale rente."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe bereken je effectieve jaarrente uit nominale rente?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De formule is: EAR = (1 + r/m)^m − 1, waarbij r de nominale jaarrente is (als decimaal) en m de compounding-frequentie (bijv. 12 voor maandelijks). Bij dagelijkse samenstelling geldt: EAR = (1 + r/365)^365 − 1."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Welke compounding-frequentie gebruiken Nederlandse banken?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nederlandse spaarrekeningen schrijven rente doorgaans maandelijks of jaarlijks bij. Hypotheken rekenen maandelijks rente over de restschuld. Beleggingsfondsen herbelegen dividenden doorgaans automatisch, wat overeenkomt met continue samenstelling."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+
+    .conversion-table {
+      margin-top: 24px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--grey-light);
+    }
+    .conversion-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .conversion-table thead th {
+      background: var(--navy);
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.03em;
+    }
+    .conversion-table thead th:not(:first-child) { text-align: right; }
+    .conversion-table tbody tr { border-bottom: 1px solid var(--grey-light); }
+    .conversion-table tbody tr:last-child { border-bottom: none; }
+    .conversion-table tbody tr.active-row { background: rgba(232,160,32,0.08); font-weight: 600; }
+    .conversion-table tbody td {
+      padding: 12px 16px;
+      color: var(--text);
+    }
+    .conversion-table tbody td:not(:first-child) {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .conversion-table tbody td.ear-val { color: var(--navy); font-weight: 600; }
+    .active-row .ear-val { color: var(--gold); }
+
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap select {
+      width: 100%;
+      padding: 12px 16px;
+      padding-right: 40px;
+      border: 2px solid var(--grey-light);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--navy);
+      background: var(--cream);
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .select-wrap select:focus { outline: none; border-color: var(--gold); background: white; }
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--grey-mid);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="leningvergelijker.html">Vergelijker</a>
+        <a href="rente-omrekenaar.html" class="active">Omrekenaar</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Rente-omrekenaar</h1>
+        <p>Reken nominale rente om naar effectieve jaarrente (EAR) en zie het verschil per compounding-frequentie. Vergelijk leningen en spaarrekeningen eerlijk op effectief rentepercentage.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Reken rente om</h2>
+            <p>Vul de nominale rente in en kies de bijschrijvingsfrequentie</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="nom-rente">Nominale jaarrente</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="nom-rente" value="5.0" min="0.01" max="50" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="nom-slider" min="0.1" max="25" step="0.1" value="5.0">
+                  <div class="slider-labels"><span>0,1%</span><span>25%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="freq-select">Bijschrijvingsfrequentie</label>
+                <div class="select-wrap">
+                  <select id="freq-select">
+                    <option value="365">Dagelijks (365×/jaar)</option>
+                    <option value="52">Wekelijks (52×/jaar)</option>
+                    <option value="12" selected>Maandelijks (12×/jaar)</option>
+                    <option value="4">Kwartaal (4×/jaar)</option>
+                    <option value="2">Halfjaars (2×/jaar)</option>
+                    <option value="1">Jaarlijks (1×/jaar)</option>
+                  </select>
+                  <span class="select-arrow">▼</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Resultaat</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Effectieve jaarrente (EAR)</div>
+                  <div class="result-value large accent" id="res-ear">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Maandelijkse rente</div>
+                  <div class="result-value" id="res-maand">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Dagelijkse rente</div>
+                  <div class="result-value" id="res-dag">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Verschil vs. nominaal</div>
+                  <div class="result-value" id="res-verschil">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparison table -->
+            <div class="conversion-table" aria-label="Vergelijkingstabel effectieve rente per frequentie">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Bijschrijvingsfrequentie</th>
+                    <th>Effectieve jaarrente</th>
+                    <th>Maandelijkse rente</th>
+                  </tr>
+                </thead>
+                <tbody id="freq-table-body"></tbody>
+              </table>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>EAR per compounding-frequentie</h3>
+              <div class="chart-wrap">
+                <canvas id="rente-chart"></canvas>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="leningvergelijker.html">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="compound-interest.html">
+              <div class="tool-icon">📈</div>
+              Compound Interest Calculator
+            </a>
+            <a href="spaardoel-calculator.html">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Rentebegrippen</h3>
+          <div class="tip-box">
+            <p><strong>Nominale rente:</strong> het gepubliceerde tarief. Dit is wat de bank adverteert, maar niet wat je werkelijk betaalt/ontvangt na samengesteld rekenen.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>EAR / effectieve rente:</strong> het werkelijke jaarpercentage na samengesteld renteren. Altijd hoger dan of gelijk aan de nominale rente.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Continue samenstelling:</strong> de theoretische limiet bij oneindig frequente bijschrijving. EAR = e^r − 1. Bij 5% nominaal: EAR = e^0,05 − 1 ≈ 5,127%.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is het verschil tussen nominale en effectieve rente?</h2>
+      <p>Wanneer een bank een rente van 5% per jaar adverteert, is dat de <strong>nominale rente</strong>. Maar als de bank rente maandelijks bijschrijft, betaal je of ontvang je feitelijk iets meer dan 5% op jaarbasis — omdat je na de eerste maand al rente over rente ontvangt. De werkelijke jaarkosten of jaaropbrengst heet de <strong>effectieve jaarrente</strong> (EAR of APY).</p>
+      <p>Dit verschil klinkt marginaal, maar bij grote bedragen of lange looptijden maakt het een significant verschil. Bovendien gebruiken verschillende financiële producten verschillende bijschrijvingsfrequenties, waardoor een eerlijke vergelijking alleen mogelijk is op basis van de EAR.</p>
+
+      <h2>De formule voor effectieve jaarrente</h2>
+      <p>De conversie van nominale rente naar effectieve jaarrente is wiskundig precies:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Effectieve Jaarrente Formule (EAR)</div>
+        <div class="formula">
+          EAR = (1 + <var>r</var> / <var>m</var>)<sup><var>m</var></sup> − 1
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">EAR</span> = effectieve jaarrente<br>
+          <span style="color:#F4C560">r</span>   = nominale jaarrente (als decimaal)<br>
+          <span style="color:#F4C560">m</span>   = aantal bijschrijvingen per jaar
+        </div>
+      </div>
+
+      <h2>Praktische rekenvoorbeelden</h2>
+      <p>Stel: de nominale rente is 6% per jaar. Wat is de EAR bij verschillende bijschrijvingsfrequenties?</p>
+      <ul>
+        <li><strong>Jaarlijks (m=1):</strong> EAR = (1 + 0,06/1)¹ − 1 = 6,000%</li>
+        <li><strong>Kwartaal (m=4):</strong> EAR = (1 + 0,06/4)⁴ − 1 = 6,136%</li>
+        <li><strong>Maandelijks (m=12):</strong> EAR = (1 + 0,06/12)¹² − 1 = 6,168%</li>
+        <li><strong>Dagelijks (m=365):</strong> EAR = (1 + 0,06/365)³⁶⁵ − 1 = 6,183%</li>
+        <li><strong>Continu:</strong> EAR = e^0,06 − 1 = 6,184%</li>
+      </ul>
+      <p>Het verschil tussen jaarlijks en dagelijks bijschrijven is 0,184 procentpunt. Op een lening van €200.000 over 25 jaar scheelt dat al gauw €5.000 aan rentekosten.</p>
+
+      <h2>Wanneer gebruik je de rente-omrekenaar?</h2>
+      <p>De rente-omrekenaar is nuttig in de volgende situaties:</p>
+      <ul>
+        <li><strong>Leningen vergelijken:</strong> bank A biedt 4,8% maandelijks, bank B biedt 4,9% kwartaal — welke is goedkoper? Met de omrekenaar zie je de EAR van beide en kun je eerlijk vergelijken.</li>
+        <li><strong>Spaarrekeningen vergelijken:</strong> verschillende banken hanteren verschillende bijschrijvingsfrequenties. Op basis van de EAR zie je welke rekening het meeste oplevert.</li>
+        <li><strong>Hypotheekberekeningen:</strong> hypotheken rekenen doorgaans maandelijks rente. Gebruik de maandelijkse rente in je eigen berekeningen.</li>
+        <li><strong>Beleggingsrendementen:</strong> jaarlijkse rendementen omrekenen naar maandelijkse rente voor gedetailleerde berekeningen.</li>
+      </ul>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Is de EAR altijd hoger dan de nominale rente?</dt>
+          <dd>Ja, altijd — tenzij de bijschrijvingsfrequentie jaarlijks is (m=1), dan zijn nominale rente en EAR precies gelijk. Bij elke hogere frequentie is de EAR groter dan de nominale rente, doordat rente op rente wordt berekend gedurende het jaar.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is het verschil tussen EAR en APR?</dt>
+          <dd>EAR (Effective Annual Rate) is de effectieve jaarrente op basis van compounding. APR (Annual Percentage Rate) is de nominale jaarrente inclusief bijkomende kosten (provisies, afsluitkosten), maar zonder de compounding-correctie. In Europa is de APR (jaarlijks kostenpercentage of JKP) wettelijk verplicht bij consumentenkrediet.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Hoe gebruik ik de maandelijkse rente in berekeningen?</dt>
+          <dd>Voor annuïteitsberekeningen (zoals in de <a href="annuiteitencalculator.html">annuïteiten calculator</a>) gebruik je de maandelijkse rente: r_maand = (1 + EAR)^(1/12) − 1. De omrekenaar toont deze waarde direct naast de EAR.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is continue samenstelling?</dt>
+          <dd>Continue samenstelling (continuous compounding) is de theoretische grens waarbij rente oneindig frequent wordt bijgeschreven. De formule is EAR = e^r − 1, waarbij e de wiskundige constante is (≈ 2,71828). In de praktijk gebruiken sommige derivaten en financiële modellen continue samenstelling.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+
+    const freqNames = {
+      365: 'Dagelijks',
+      52:  'Wekelijks',
+      12:  'Maandelijks',
+      4:   'Kwartaal',
+      2:   'Halfjaars',
+      1:   'Jaarlijks'
+    };
+
+    function ear(r, m) { return Math.pow(1 + r / m, m) - 1; }
+    function monthlyRate(earVal) { return Math.pow(1 + earVal, 1/12) - 1; }
+    function fmt4(v) { return (v * 100).toFixed(4) + '%'; }
+    function fmt6(v) { return (v * 100).toFixed(6) + '%'; }
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('nom-rente'), document.getElementById('nom-slider'));
+    document.getElementById('freq-select').addEventListener('change', calculate);
+
+    function calculate() {
+      const nom  = parseFloat(document.getElementById('nom-rente').value) || 0;
+      const freq = parseInt(document.getElementById('freq-select').value) || 12;
+
+      if (nom <= 0) return;
+
+      const r    = nom / 100;
+      const earV = ear(r, freq);
+      const mr   = monthlyRate(earV);
+      const dr   = Math.pow(1 + earV, 1/365) - 1;
+      const diff = earV - r;
+
+      document.getElementById('res-ear').textContent    = fmt4(earV);
+      document.getElementById('res-maand').textContent  = fmt6(mr);
+      document.getElementById('res-dag').textContent    = fmt6(dr);
+      document.getElementById('res-verschil').textContent = '+' + (diff * 100).toFixed(4) + '%';
+
+      buildTable(r, freq);
+      buildChart(r);
+    }
+
+    function buildTable(r, activeFreq) {
+      const tbody = document.getElementById('freq-table-body');
+      const freqs = [365, 52, 12, 4, 2, 1];
+      tbody.innerHTML = freqs.map(m => {
+        const earV = ear(r, m);
+        const mr   = monthlyRate(earV);
+        const active = m === activeFreq ? ' class="active-row"' : '';
+        return `<tr${active}>
+          <td>${freqNames[m]}</td>
+          <td class="ear-val">${fmt4(earV)}</td>
+          <td>${fmt6(mr)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function buildChart(r) {
+      const ctx = document.getElementById('rente-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      const freqs  = [1, 2, 4, 12, 52, 365];
+      const labels = freqs.map(m => freqNames[m]);
+      const data   = freqs.map(m => parseFloat((ear(r, m) * 100).toFixed(4)));
+      const nomLine = freqs.map(() => parseFloat((r * 100).toFixed(4)));
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'EAR',
+              data,
+              backgroundColor: '#E8A020',
+              borderRadius: 4
+            },
+            {
+              label: 'Nominale rente',
+              data: nomLine,
+              type: 'line',
+              borderColor: '#0F1F3D',
+              borderWidth: 2,
+              borderDash: [6,3],
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + c.parsed.y.toFixed(4) + '%' } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D' } },
+            y: {
+              grid: { color: '#E8ECF0' },
+              ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => v.toFixed(2) + '%' }
+            }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spaardoel Calculator — Hoeveel Sparen per Maand? | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken hoeveel je per maand moet sparen om je spaardoel te bereiken. Gratis online calculator met rente-op-rente effect en vermogensopbouw grafiek.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/spaardoel-calculator">
+  <meta property="og:title" content="Spaardoel Calculator — Hoeveel sparen per maand?">
+  <meta property="og:description" content="Bereken de benodigde maandelijkse inleg voor elk spaardoel. Met rente-effect en vermogensopbouw grafiek.">
+  <meta property="og:url" content="https://rentepermaand.nl/spaardoel-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Spaardoel Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken hoeveel je per maand moet sparen om een spaardoel te bereiken, inclusief rente-op-rente effect.",
+    "url": "https://rentepermaand.nl/spaardoel-calculator",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Hoe bereken je de benodigde maandelijkse inleg voor een spaardoel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De benodigde maandelijkse inleg bereken je met de PMT-formule: PMT = (FV − PV × (1+r)^n) × r / ((1+r)^n − 1), waarbij FV het doelbedrag is, PV het huidige saldo, r de maandelijkse rente en n het aantal maanden."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat is rente-op-rente bij sparen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Rente-op-rente (samengestelde rente) betekent dat je niet alleen rente ontvangt over je ingelegde bedrag, maar ook over de al opgebouwde rente. Dit zorgt voor exponentiële groei van je spaartegoed, zeker over langere periodes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat is een realistisch rendement om mee te rekenen bij sparen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Voor een Nederlandse spaarrekening is het huidige rendement 2–4% per jaar. Voor beleggingen in een wereldwijde aandelenindex is het historisch gemiddeld rendement 6–8% per jaar, maar dit is niet gegarandeerd en brengt koersrisico met zich mee."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--grey-text);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html" class="active">Spaardoel</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Spaardoel Calculator</h1>
+        <p>Bereken precies hoeveel je elke maand opzij moet zetten om jouw spaardoel op tijd te bereiken — met rente-op-rente effect inbegrepen.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Bereken je maandelijkse inleg</h2>
+            <p>Vul je spaardoel in — het resultaat wordt direct bijgewerkt</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="doelbedrag">Spaardoel (doelbedrag)</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="doelbedrag" value="25000" min="100" max="10000000" step="500" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="doelbedrag-slider" min="1000" max="500000" step="1000" value="25000">
+                <div class="slider-labels"><span>€1.000</span><span>€500.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="huidig-saldo">Huidig spaarsaldo</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="huidig-saldo" value="0" min="0" max="10000000" step="500" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="saldo-slider" min="0" max="100000" step="500" value="0">
+                <div class="slider-labels"><span>€0</span><span>€100.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="rente-spaar">Jaarlijks rendement</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rente-spaar" value="3.0" min="0" max="20" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="rente-spaar-slider" min="0" max="15" step="0.1" value="3.0">
+                  <div class="slider-labels"><span>0%</span><span>15%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="looptijd-spaar">Looptijd (jaren)</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="looptijd-spaar" value="10" min="1" max="50" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="looptijd-spaar-slider" min="1" max="50" step="1" value="10">
+                  <div class="slider-labels"><span>1 jr</span><span>50 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Maandelijkse inleg</div>
+                  <div class="result-value large accent" id="res-pmt">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Eindvermogen</div>
+                  <div class="result-value" id="res-fv">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal ingelegd</div>
+                  <div class="result-value" id="res-ingelegd">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal rendement</div>
+                  <div class="result-value" id="res-rendement">—</div>
+                </div>
+              </div>
+
+              <div class="split-bar-wrap">
+                <div class="split-bar-label">
+                  <span class="lbl-aflossing" id="bar-inleg-pct">Inleg</span>
+                  <span class="lbl-rente" id="bar-rente-pct">Rendement</span>
+                </div>
+                <div class="split-bar" aria-hidden="true">
+                  <div class="split-bar-fill" id="split-fill" style="width:70%"></div>
+                </div>
+                <div class="split-bar-note">Verdeling van je eindvermogen</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Vermogensopbouw over de looptijd</h3>
+              <div class="chart-wrap">
+                <canvas id="spaar-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D"></div> Inleg</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Rendement</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="compound-interest.html">
+              <div class="tool-icon">📈</div>
+              Compound Interest Calculator
+            </a>
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen Calculator
+            </a>
+            <a href="inflatie-calculator.html">
+              <div class="tool-icon">📉</div>
+              Inflatie Calculator
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Spaartips</h3>
+          <div class="tip-box">
+            <p><strong>Start vroeg:</strong> door het rente-op-rente effect groeit geld dat 10 jaar eerder wordt gespaard exponentieel meer dan later ingelegd geld.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Rendement:</strong> een spaarrekening levert 2–4%, beleggingen historisch 6–8% per jaar. Meer rendement = minder maandelijkse inleg nodig voor hetzelfde doel.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Automatiseer:</strong> zet een automatische overboeking in op salarisdatum — dan spaar je consequent zonder het te merken.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is een spaardoel calculator?</h2>
+      <p>Een spaardoel calculator berekent hoeveel je elke maand opzij moet zetten om een bepaald bedrag bij elkaar te sparen in een gegeven tijdsspanne. De calculator houdt rekening met je huidig spaarsaldo en het verwachte rendement op je spaargeld of beleggingen.</p>
+      <p>Of je nu spaart voor een vakantie, een auto, een studie, een eigen woning of een noodfonds: de calculator geeft direct inzicht in wat haalbaar is en wat je maandelijks nodig hebt om je doel precies op tijd te bereiken.</p>
+
+      <h2>De formule voor maandelijkse inleg berekenen</h2>
+      <p>De berekening gebruikt de toekomstige waarde formule (Future Value) omgekeerd. Als je het doelbedrag, de looptijd en het rendement kent, bereken je de benodigde maandelijkse inleg met:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Maandelijkse inleg (PMT formule)</div>
+        <div class="formula">
+          PMT = [<var>FV</var> − <var>PV</var> × (1+<var>r</var>)<sup><var>n</var></sup>] × <var>r</var> / [(1+<var>r</var>)<sup><var>n</var></sup> − 1]
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">PMT</span> = benodigde maandelijkse inleg<br>
+          <span style="color:#F4C560">FV</span> = spaardoel (doelbedrag)<br>
+          <span style="color:#F4C560">PV</span> = huidig spaarsaldo<br>
+          <span style="color:#F4C560">r</span> = maandelijkse rente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span> = looptijd in maanden (jaren × 12)
+        </div>
+      </div>
+
+      <h2>Hoe werkt rente-op-rente bij sparen?</h2>
+      <p>Het krachtigste mechanisme bij sparen is <strong>samengestelde rente</strong>, ook wel rente-op-rente of compound interest genoemd. Dit betekent dat je niet alleen rente ontvangt over je inleggen, maar ook over de rente die je al hebt opgebouwd. Het effect lijkt klein op korte termijn, maar wordt enorm over langere periodes.</p>
+      <p>Voorbeeld: €200 per maand sparen bij 4% rendement gedurende 20 jaar levert niet €48.000 op (200 × 240 maanden), maar ruim €73.000. Het verschil van €25.000 is puur rendement op rendement — geld dat je nooit zelf hebt ingelegd.</p>
+
+      <h2>Spaarrekening vs. beleggen: welk rendement gebruik ik?</h2>
+      <p>Het rendement dat je invult bepaalt sterk hoeveel je maandelijks moet inleggen. Een hoger rendement betekent minder inleg nodig voor hetzelfde doel. Maar hogere rendementen gaan doorgaans gepaard met meer risico:</p>
+      <ul>
+        <li><strong>Spaarrekening:</strong> 2–4% per jaar (2025), risicoloos, maar rendement varieert met de ECB-rente</li>
+        <li><strong>Obligatiefonds:</strong> 3–5% per jaar gemiddeld, laag risico</li>
+        <li><strong>Aandelenfonds (wereldwijd):</strong> historisch 6–8% per jaar gemiddeld, maar met flinke schommelingen</li>
+        <li><strong>0% (spaarpot thuis):</strong> inflatie vreet koopkracht weg, maar geen koersrisico</li>
+      </ul>
+      <p>Voor spaardoelen op de korte termijn (onder 3 jaar) is een spaarrekening verstandiger dan beleggen. Voor lange termijn (10+ jaar) kan beleggen de benodigde maandelijkse inleg flink verlagen.</p>
+
+      <h2>Praktische rekenvoorbeelden</h2>
+      <p>Een paar voorbeelden om te vergelijken bij een rendement van 3%:</p>
+      <ul>
+        <li><strong>Noodfonds €10.000 in 3 jaar:</strong> circa €268/maand nodig</li>
+        <li><strong>Auto €25.000 in 5 jaar:</strong> circa €390/maand nodig</li>
+        <li><strong>Eigen woning bijdrage €50.000 in 10 jaar:</strong> circa €358/maand nodig</li>
+        <li><strong>Pensioen aanvulling €200.000 in 30 jaar bij 6%:</strong> circa €199/maand nodig</li>
+      </ul>
+      <p>Opvallend: voor een pensioendoel van €200.000 in 30 jaar bij 6% rendement heb je maar €199 per maand nodig, terwijl je in totaal maar circa €71.000 inlegt. Het rente-effect levert dus meer dan €129.000 extra op — geld dat volledig door rendement is gegenereerd.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Wat is een verstandig spaardoel als noodfonds?</dt>
+          <dd>Financieel adviseurs raden aan om 3 tot 6 maanden netto maandinkomen achter de hand te hebben als noodfonds. Verdien je €3.000 netto per maand, dan is een noodfonds van €9.000 tot €18.000 verstandig. Dit dekt onverwachte uitgaven zoals autoschade, een kapotte wasmachine of tijdelijk inkomensverlies.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat als ik al een beginbedrag heb gespaard?</dt>
+          <dd>Vul je huidig spaarsaldo in bij "Huidig spaarsaldo". Dit bedrag groeit ook mee met het rendement. Hoe meer je al hebt, hoe lager de benodigde maandelijkse inleg. Bij een hoog beginbedrag en lange looptijd kan het zelfs zo zijn dat je helemaal niets extra hoeft in te leggen om je doel te bereiken.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is de berekening exact?</dt>
+          <dd>De calculator gebruikt de standaard PMT-formule met maandelijkse samengestelde rente. In de praktijk kunnen kleine afwijkingen ontstaan door dagelijkse vs. maandelijkse rentebijschrijving bij je bank. Gebruik de uitkomst als richtlijn voor je spaarbeslissing.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik ook berekenen wat ik heb als ik een vast bedrag per maand inleg?</dt>
+          <dd>Gebruik daarvoor de <a href="compound-interest.html">Compound Interest Calculator</a>. Daar vul je een vaste maandelijkse inleg in en zie je direct wat je eindvermogen wordt over de gewenste periode.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+    const fmtEur = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€ ' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('doelbedrag'), document.getElementById('doelbedrag-slider'));
+    syncPair(document.getElementById('huidig-saldo'), document.getElementById('saldo-slider'));
+    syncPair(document.getElementById('rente-spaar'), document.getElementById('rente-spaar-slider'));
+    syncPair(document.getElementById('looptijd-spaar'), document.getElementById('looptijd-spaar-slider'));
+
+    function calculate() {
+      const FV    = parseFloat(document.getElementById('doelbedrag').value) || 0;
+      const PV    = parseFloat(document.getElementById('huidig-saldo').value) || 0;
+      const j     = parseFloat(document.getElementById('rente-spaar').value) || 0;
+      const jaren = parseInt(document.getElementById('looptijd-spaar').value) || 0;
+
+      if (FV <= 0 || jaren <= 0) return;
+
+      const r = j / 100 / 12;
+      const n = jaren * 12;
+
+      let pmt;
+      if (r === 0) {
+        pmt = Math.max(0, (FV - PV) / n);
+      } else {
+        const factor = Math.pow(1 + r, n);
+        pmt = Math.max(0, (FV - PV * factor) * r / (factor - 1));
+      }
+
+      const totaalIngelegd  = PV + pmt * n;
+      const totaalRendement = FV - totaalIngelegd;
+      const inlegPct = Math.min(100, totaalIngelegd / FV * 100);
+      const rendPct  = Math.max(0, 100 - inlegPct);
+
+      document.getElementById('res-pmt').textContent       = fmtEurDec(pmt);
+      document.getElementById('res-fv').textContent        = fmtEur(FV);
+      document.getElementById('res-ingelegd').textContent  = fmtEur(totaalIngelegd);
+      document.getElementById('res-rendement').textContent = fmtEur(totaalRendement);
+      document.getElementById('split-fill').style.width    = inlegPct.toFixed(1) + '%';
+      document.getElementById('bar-inleg-pct').textContent = 'Inleg ' + inlegPct.toFixed(1) + '%';
+      document.getElementById('bar-rente-pct').textContent = 'Rendement ' + rendPct.toFixed(1) + '%';
+
+      buildChart(PV, pmt, r, n, jaren);
+    }
+
+    function buildChart(PV, pmt, r, n, jaren) {
+      const ctx = document.getElementById('spaar-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      const labels = [], dataInleg = [], dataRente = [];
+
+      for (let y = 1; y <= jaren; y++) {
+        const m = y * 12;
+        let saldo = PV, cumRente = 0;
+        for (let i = 0; i < m; i++) {
+          const rente = saldo * r;
+          cumRente += rente;
+          saldo += rente + pmt;
+        }
+        labels.push('Jaar ' + y);
+        dataInleg.push(Math.round(PV + pmt * m));
+        dataRente.push(Math.round(cumRente));
+      }
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Inleg',     data: dataInleg, backgroundColor: '#0F1F3D', borderRadius: 3, stack: 'v' },
+            { label: 'Rendement', data: dataRente, backgroundColor: '#2A9D6A', borderRadius: 3, stack: 'v' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtEur(c.parsed.y) } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { stacked: true, grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) } }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

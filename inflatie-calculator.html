@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inflatie Calculator — Koopkracht Berekenen | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken wat inflatie doet met je vermogen en koopkracht. Gratis inflatie calculator die reële waarde, koopkrachtverlies en inflatie-gecorrigeerd rendement berekent.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/inflatie-calculator">
+  <meta property="og:title" content="Inflatie Calculator — Koopkracht Berekenen">
+  <meta property="og:description" content="Bereken wat inflatie doet met je vermogen. Zie het koopkrachtverlies over tijd en vergelijk met belegd vermogen.">
+  <meta property="og:url" content="https://rentepermaand.nl/inflatie-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Inflatie Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken het effect van inflatie op je vermogen en koopkracht over een gekozen periode.",
+    "url": "https://rentepermaand.nl/inflatie-calculator",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is de gemiddelde inflatie in Nederland?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De gemiddelde inflatie in Nederland bedraagt historisch circa 2% per jaar (ECB-doelstelling). In 2022–2023 liep de inflatie op tot 10–14% als gevolg van energieprijzen en supply chain verstoringen. In 2024–2025 normaliseert de inflatie weer richting de 2–3%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe bereken je koopkrachtverlies door inflatie?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De reële waarde van een bedrag na inflatie is: Reële waarde = Nominaal bedrag / (1 + inflatie)^jaren. Bij 3% inflatie over 10 jaar is €10.000 nog maar €7.441 waard in koopkracht — een verlies van 25,6%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe bescherm je vermogen tegen inflatie?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Beleggen in aandelen, vastgoed of inflatiegekoppelde obligaties (TIPS) biedt doorgaans een betere bescherming dan sparen. Historisch heeft een wereldwijde aandelenportefeuille een reëel rendement van 4–6% per jaar behaald, wat inflatie ruimschoots compenseert."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--grey-text);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .loss-value { color: #E05A40 !important; }
+    .gain-value { color: #2A9D6A !important; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html" class="active">Inflatie</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Inflatie Calculator</h1>
+        <p>Bereken wat inflatie doet met je vermogen en koopkracht over de tijd. Vergelijk de reële waarde van cash met een belegd vermogen.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Bereken koopkrachtverlies</h2>
+            <p>Zie direct wat inflatie doet met de waarde van je geld</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="huidig-bedrag">Huidig vermogen / bedrag</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="huidig-bedrag" value="50000" min="100" max="10000000" step="1000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="bedrag-slider" min="1000" max="500000" step="1000" value="50000">
+                <div class="slider-labels"><span>€1.000</span><span>€500.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="inflatie-pct">Inflatie per jaar</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="inflatie-pct" value="3.0" min="0" max="30" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="inflatie-slider" min="0" max="20" step="0.1" value="3.0">
+                  <div class="slider-labels"><span>0%</span><span>20%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="rendement-pct">Rendement belegging</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rendement-pct" value="7.0" min="0" max="30" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="rendement-slider" min="0" max="20" step="0.1" value="7.0">
+                  <div class="slider-labels"><span>0%</span><span>20%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="looptijd-inf">Looptijd (jaren)</label>
+              <div class="input-wrap has-suffix">
+                <input type="number" id="looptijd-inf" value="20" min="1" max="50" step="1" inputmode="numeric">
+                <span class="input-suffix">jr</span>
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="looptijd-inf-slider" min="1" max="50" step="1" value="20">
+                <div class="slider-labels"><span>1 jr</span><span>50 jr</span></div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst na <span id="res-jaren">20</span> jaar</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Nominale waarde (cash)</div>
+                  <div class="result-value" id="res-nominaal">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Reële koopkracht (cash)</div>
+                  <div class="result-value loss-value" id="res-reeel">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Koopkrachtverlies</div>
+                  <div class="result-value loss-value" id="res-verlies">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Belegd (reële waarde)</div>
+                  <div class="result-value gain-value" id="res-belegd">—</div>
+                </div>
+              </div>
+
+              <div class="split-bar-wrap">
+                <div class="split-bar-label">
+                  <span class="lbl-aflossing" id="inf-bar-rest">Koopkracht</span>
+                  <span class="lbl-rente" id="inf-bar-verlies">Verlies</span>
+                </div>
+                <div class="split-bar" aria-hidden="true">
+                  <div class="split-bar-fill" id="inf-split-fill" style="width:60%"></div>
+                </div>
+                <div class="split-bar-note">Resterende koopkracht van je cash na inflatie</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Koopkracht vs. belegd vermogen</h3>
+              <div class="chart-wrap">
+                <canvas id="inf-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#6B7A8D"></div> Cash (nominaal)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#E05A40"></div> Reële koopkracht</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Belegd (reëel)</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="compound-interest.html">
+              <div class="tool-icon">📈</div>
+              Compound Interest Calculator
+            </a>
+            <a href="spaardoel-calculator.html">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+            <a href="leningvergelijker.html">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+            <a href="rente-omrekenaar.html">
+              <div class="tool-icon">🔄</div>
+              Rente-omrekenaar
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Inflatie feiten</h3>
+          <div class="tip-box">
+            <p><strong>ECB-doel:</strong> de Europese Centrale Bank streeft naar 2% inflatie per jaar als optimaal voor de economie.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Reëel rendement:</strong> je werkelijke rendement na inflatie = ((1 + nominaal) / (1 + inflatie)) − 1. Bij 7% rendement en 3% inflatie: circa 3,9% reëel.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Koopkrachtregel van 70:</strong> deel 70 door het inflatiepercentage om te weten na hoeveel jaar je koopkracht halveert. Bij 3%: na 23 jaar.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat doet inflatie met je vermogen?</h2>
+      <p>Inflatie is de geleidelijke stijging van het algemene prijspeil. Als de inflatie 3% per jaar bedraagt, kost een boodschappenmand die nu €100 kost over 10 jaar ruim €134. Je hebt dan meer geld nodig voor hetzelfde. Andersom: het €100-biljet in je portemonnee is over 10 jaar nog maar €74 waard in koopkracht.</p>
+      <p>Voor spaarders is inflatie een stil maar slopend risico. Geld op een spaarrekening met 2% rente bij 3% inflatie levert per saldo een <em>negatief</em> reëel rendement op van –1% per jaar. Je wordt nominaal rijker, maar koopt steeds minder.</p>
+
+      <h2>De formule voor inflatie-gecorrigeerde waarde</h2>
+      <p>De reële waarde van een bedrag na inflatie bereken je als volgt:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Reële waarde na inflatie</div>
+        <div class="formula">
+          RV = <var>NV</var> / (1 + <var>i</var>)<sup><var>n</var></sup>
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">RV</span> = reële waarde (koopkracht)<br>
+          <span style="color:#F4C560">NV</span> = nominale waarde (bedrag in euro's)<br>
+          <span style="color:#F4C560">i</span>  = jaarlijks inflatiepercentage (als decimaal)<br>
+          <span style="color:#F4C560">n</span>  = aantal jaren
+        </div>
+      </div>
+
+      <h2>Inflatie in Nederland: historisch perspectief</h2>
+      <p>De inflatie in Nederland was decennialang stabiel rond de 2% per jaar, conform het ECB-doel. Pas in 2021–2022 liep de inflatie sterk op, gedreven door energieprijzen en verstoorde aanvoerketens na de coronapandemie. In 2022 bereikte de Nederlandse inflatie een recordhoogte van ruim 14%. Sindsdien normaliseert de inflatie weer richting de 3–4%.</p>
+      <p>Voor lange-termijn berekeningen is een gemiddelde van 2–3% per jaar een realistische aanname.</p>
+
+      <h2>Reëel vs. nominaal rendement</h2>
+      <p>Banken en fondsen adverteren <strong>nominale rendementen</strong> — het rendement vóór inflatie. Voor je daadwerkelijke koopkrachtontwikkeling telt het <strong>reëel rendement</strong>. De exacte formule daarvoor is:</p>
+      <ul>
+        <li>Reëel rendement = ((1 + nominaal rendement) / (1 + inflatie)) − 1</li>
+        <li>Bij 7% nominaal rendement en 3% inflatie: (1,07 / 1,03) − 1 = 3,88% reëel</li>
+        <li>Bij 2% spaarrente en 3% inflatie: (1,02 / 1,03) − 1 = −0,97% reëel (koopkrachtverlies)</li>
+      </ul>
+      <p>Dit verklaart waarom langetermijnbeleggers in aandelen historisch hun koopkracht beter hebben weten te behouden dan spaarders.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Hoe bescherm ik mijn spaargeld tegen inflatie?</dt>
+          <dd>Opties zijn: (1) beleggen in aandelen of obligaties die historisch boven inflatie renderen, (2) investeren in vastgoed, (3) inflatiegekoppelde obligaties (TIPS of inflatie-linked bonds), (4) voor korte termijn: een hoogrentende spaarrekening kiezen. Er is geen risicoloze inflatiebescherming — hogere bescherming gaat altijd gepaard met meer risico.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Welk inflatiepercentage moet ik invullen?</dt>
+          <dd>Voor conservatieve berekeningen kun je 2–3% per jaar gebruiken (historisch Nederlands gemiddelde en ECB-doelstelling). Voor scenarios met hogere inflatie — bijv. energiecrisis of specifieke sectoren — kun je 4–6% instellen. De werkelijke toekomstige inflatie is niet te voorspellen.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat betekent de "reëel belegd" lijn in de grafiek?</dt>
+          <dd>Dit toont de reële koopkracht van je belegging na aftrek van inflatie. De formule: Reeel_belegd = PV × ((1 + rendement) / (1 + inflatie))^n. Als je rendement hoger is dan inflatie, stijgt je reële koopkracht; is het lager, dan daalt die ook al groeit je nominale vermogen.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Houdt de calculator rekening met belasting?</dt>
+          <dd>Nee, de berekening is bruto. In Nederland betaal je via box 3 belasting over een fictief rendement op je vermogen. Dit verlaagt het netto reële rendement verder. Raadpleeg de Belastingdienst of een adviseur voor je exacte situatie.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+    const fmtEur = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('huidig-bedrag'), document.getElementById('bedrag-slider'));
+    syncPair(document.getElementById('inflatie-pct'), document.getElementById('inflatie-slider'));
+    syncPair(document.getElementById('rendement-pct'), document.getElementById('rendement-slider'));
+    syncPair(document.getElementById('looptijd-inf'), document.getElementById('looptijd-inf-slider'));
+
+    function calculate() {
+      const PV     = parseFloat(document.getElementById('huidig-bedrag').value) || 0;
+      const inf    = parseFloat(document.getElementById('inflatie-pct').value) || 0;
+      const rend   = parseFloat(document.getElementById('rendement-pct').value) || 0;
+      const jaren  = parseInt(document.getElementById('looptijd-inf').value) || 0;
+
+      if (PV <= 0 || jaren <= 0) return;
+
+      const i = inf / 100;
+      const r = rend / 100;
+
+      const reeleWaarde   = PV / Math.pow(1 + i, jaren);
+      const belegdReeel   = PV * Math.pow((1 + r) / (1 + i), jaren);
+      const verlies       = PV - reeleWaarde;
+      const restPct       = reeleWaarde / PV * 100;
+      const verliesPct    = 100 - restPct;
+
+      document.getElementById('res-jaren').textContent   = jaren;
+      document.getElementById('res-nominaal').textContent = fmtEur(PV);
+      document.getElementById('res-reeel').textContent   = fmtEur(reeleWaarde);
+      document.getElementById('res-verlies').textContent = '−' + fmtEur(verlies) + ' (−' + verliesPct.toFixed(1) + '%)';
+      document.getElementById('res-belegd').textContent  = fmtEur(belegdReeel);
+      document.getElementById('inf-split-fill').style.width  = restPct.toFixed(1) + '%';
+      document.getElementById('inf-bar-rest').textContent    = 'Koopkracht ' + restPct.toFixed(1) + '%';
+      document.getElementById('inf-bar-verlies').textContent = 'Verlies ' + verliesPct.toFixed(1) + '%';
+
+      buildChart(PV, i, r, jaren);
+    }
+
+    function buildChart(PV, i, r, jaren) {
+      const ctx = document.getElementById('inf-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      const labels = ['Nu'], dataCash = [PV], dataReeel = [PV], dataBelegd = [PV];
+
+      for (let y = 1; y <= jaren; y++) {
+        labels.push('Jaar ' + y);
+        dataCash.push(Math.round(PV));
+        dataReeel.push(Math.round(PV / Math.pow(1 + i, y)));
+        dataBelegd.push(Math.round(PV * Math.pow((1 + r) / (1 + i), y)));
+      }
+
+      const fmtEurShort = v => '€' + (Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'k' : Math.round(v));
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Cash (nominaal)',
+              data: dataCash,
+              borderColor: '#6B7A8D',
+              backgroundColor: 'rgba(107,122,141,0.05)',
+              borderWidth: 2,
+              borderDash: [6,3],
+              pointRadius: 0,
+              fill: false,
+              tension: 0
+            },
+            {
+              label: 'Reële koopkracht',
+              data: dataReeel,
+              borderColor: '#E05A40',
+              backgroundColor: 'rgba(224,90,64,0.08)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.3
+            },
+            {
+              label: 'Belegd (reëel)',
+              data: dataBelegd,
+              borderColor: '#2A9D6A',
+              backgroundColor: 'rgba(42,157,106,0.08)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtEurShort(c.parsed.y) } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 12 } },
+            y: { grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => fmtEurShort(v) } }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

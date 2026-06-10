@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leningvergelijker — Twee Leningen Vergelijken op Kosten | RentePerMaand.nl</title>
+  <meta name="description" content="Vergelijk twee leningen op maandlast, totale rente en totale kosten. Gratis leningvergelijker die direct laat zien welke lening goedkoper uitpakt.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/leningvergelijker">
+  <meta property="og:title" content="Leningvergelijker — Welke lening is goedkoper?">
+  <meta property="og:description" content="Vergelijk twee leningen direct op maandlast, totale rente en totale kosten. Gratis, zonder registratie.">
+  <meta property="og:url" content="https://rentepermaand.nl/leningvergelijker">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Leningvergelijker",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Vergelijk twee leningen op maandlast, totale rente en totale kosten naast elkaar.",
+    "url": "https://rentepermaand.nl/leningvergelijker",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Waarop moet ik leningen vergelijken?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vergelijk altijd op: (1) de maandlast, (2) de totale rentekosten over de gehele looptijd, en (3) het effectieve rentepercentage (EAR). Een lagere maandlast kan misleidend zijn als de looptijd veel langer is — de totale rentekosten kunnen dan hoger uitpakken."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat is het verschil tussen nominale en effectieve rente?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De nominale rente is het gepubliceerde rentepercentage. De effectieve jaarrente (EAR) houdt rekening met het samengesteld rendement door maandelijkse rentebijschrijving. Bij een nominale rente van 6% per jaar is de effectieve jaarrente circa 6,17%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is een kortere of langere looptijd goedkoper?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Een kortere looptijd geeft hogere maandlasten maar lagere totale rentekosten. Een langere looptijd geeft lagere maandlasten maar je betaalt over de gehele looptijd aanzienlijk meer rente. Kies de looptijd die past bij jouw maandelijkse budget, maar houd de totale kosten in het oog."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .lening-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 640px) { .lening-grid { grid-template-columns: 1fr; } }
+
+    .lening-block {
+      border-radius: var(--radius);
+      border: 2px solid var(--grey-light);
+      overflow: hidden;
+    }
+    .lening-block.lening-a { border-color: rgba(232,160,32,0.5); }
+    .lening-block.lening-b { border-color: rgba(42,157,106,0.5); }
+
+    .lening-header {
+      padding: 14px 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .lening-a .lening-header { background: rgba(232,160,32,0.1); color: #B07A10; }
+    .lening-b .lening-header { background: rgba(42,157,106,0.1); color: #1E7A52; }
+
+    .lening-body { padding: 20px; }
+    .lening-body .field-group { margin-bottom: 16px; }
+    .lening-body .field-group:last-child { margin-bottom: 0; }
+
+    .comparison-grid-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 0;
+    }
+    @media (max-width: 480px) { .comparison-grid-results { grid-template-columns: 1fr; } }
+
+    .comp-col {
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .comp-col.col-a {
+      background: rgba(232,160,32,0.1);
+      border: 1px solid rgba(232,160,32,0.3);
+    }
+    .comp-col.col-b {
+      background: rgba(42,157,106,0.12);
+      border: 1px solid rgba(42,157,106,0.3);
+    }
+    .comp-col-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .col-a .comp-col-label { color: #E8A020; }
+    .col-b .comp-col-label { color: #2A9D6A; }
+    .comp-col .result-value { font-size: 1.3rem; }
+
+    .winner-banner {
+      text-align: center;
+      padding: 20px;
+      background: rgba(42,157,106,0.12);
+      border-radius: var(--radius);
+      margin-top: 20px;
+      border: 1px solid rgba(42,157,106,0.3);
+    }
+    .winner-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2A9D6A;
+      margin-bottom: 6px;
+    }
+    .winner-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: white;
+      line-height: 1.2;
+    }
+    .winner-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+    }
+
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--grey-text); font-weight: 500; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="leningvergelijker.html" class="active">Vergelijker</a>
+        <a href="rente-omrekenaar.html">Omrekenaar</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Leningvergelijker</h1>
+        <p>Vergelijk twee leningen of hypotheken naast elkaar op maandlast, totale rente en totale kosten. Zie direct welke optie voordeliger uitpakt over de gehele looptijd.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Vergelijk twee leningen</h2>
+            <p>Vul beide leningen in — de vergelijking wordt direct bijgewerkt</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="lening-grid">
+              <!-- Lening A -->
+              <div class="lening-block lening-a">
+                <div class="lening-header">Lening A</div>
+                <div class="lening-body">
+                  <div class="field-group">
+                    <label for="a-bedrag">Leenbedrag</label>
+                    <div class="input-wrap has-prefix">
+                      <span class="input-prefix">€</span>
+                      <input type="number" id="a-bedrag" value="200000" min="100" max="5000000" step="1000" inputmode="numeric">
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label for="a-rente">Jaarrente</label>
+                    <div class="input-wrap has-suffix">
+                      <input type="number" id="a-rente" value="4.5" min="0.01" max="30" step="0.1" inputmode="decimal">
+                      <span class="input-suffix">%</span>
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label for="a-looptijd">Looptijd (jaren)</label>
+                    <div class="input-wrap has-suffix">
+                      <input type="number" id="a-looptijd" value="25" min="1" max="50" step="1" inputmode="numeric">
+                      <span class="input-suffix">jr</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lening B -->
+              <div class="lening-block lening-b">
+                <div class="lening-header">Lening B</div>
+                <div class="lening-body">
+                  <div class="field-group">
+                    <label for="b-bedrag">Leenbedrag</label>
+                    <div class="input-wrap has-prefix">
+                      <span class="input-prefix">€</span>
+                      <input type="number" id="b-bedrag" value="200000" min="100" max="5000000" step="1000" inputmode="numeric">
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label for="b-rente">Jaarrente</label>
+                    <div class="input-wrap has-suffix">
+                      <input type="number" id="b-rente" value="3.8" min="0.01" max="30" step="0.1" inputmode="decimal">
+                      <span class="input-suffix">%</span>
+                    </div>
+                  </div>
+                  <div class="field-group">
+                    <label for="b-looptijd">Looptijd (jaren)</label>
+                    <div class="input-wrap has-suffix">
+                      <input type="number" id="b-looptijd" value="30" min="1" max="50" step="1" inputmode="numeric">
+                      <span class="input-suffix">jr</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Vergelijking</h3>
+
+              <div class="comparison-grid-results">
+                <div class="comp-col col-a">
+                  <div class="comp-col-label">Lening A</div>
+                  <div class="result-item">
+                    <div class="result-label">Maandlast</div>
+                    <div class="result-value" id="a-maand">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totale rente</div>
+                    <div class="result-value" id="a-rente-tot">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totaal betalen</div>
+                    <div class="result-value" id="a-totaal">—</div>
+                  </div>
+                </div>
+
+                <div class="comp-col col-b">
+                  <div class="comp-col-label">Lening B</div>
+                  <div class="result-item">
+                    <div class="result-label">Maandlast</div>
+                    <div class="result-value" id="b-maand">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totale rente</div>
+                    <div class="result-value" id="b-rente-tot">—</div>
+                  </div>
+                  <div class="result-item" style="margin-top:12px">
+                    <div class="result-label">Totaal betalen</div>
+                    <div class="result-value" id="b-totaal">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="winner-banner">
+                <div class="winner-label">Verschil in totale rentekosten</div>
+                <div class="winner-text" id="winner-text">—</div>
+                <div class="winner-sub" id="winner-sub"></div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Kostenvergelijking</h3>
+              <div class="chart-wrap">
+                <canvas id="verg-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#E8A020"></div> Lening A — Rente</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#B07A10"></div> Lening A — Aflossing</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Lening B — Rente</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#1E7A52"></div> Lening B — Aflossing</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen Calculator
+            </a>
+            <a href="rente-omrekenaar.html">
+              <div class="tool-icon">🔄</div>
+              Rente-omrekenaar
+            </a>
+            <a href="spaardoel-calculator.html">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Vergelijkingstips</h3>
+          <div class="tip-box">
+            <p><strong>Totale kosten:</strong> kijk altijd naar totaal terugbetalen, niet alleen de maandlast. Een lagere maandlast door langere looptijd kan duizenden euro's duurder zijn.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>EAR vs. nominaal:</strong> vergelijk altijd op effectieve jaarrente (EAR). De <a href="rente-omrekenaar.html">rente-omrekenaar</a> helpt je nominale tarieven te vergelijken.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Bijkomende kosten:</strong> hypotheken hebben extra kosten zoals notariskosten, taxatiekosten en hypotheekadvies. Tel die altijd mee in je totale vergelijking.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Waarom leningen vergelijken op totale kosten?</h2>
+      <p>Bij het vergelijken van leningen kijken de meeste mensen alleen naar de maandlast. Dat is begrijpelijk — je wilt weten wat je elke maand betaalt. Maar de maandlast vertelt niet het volledige verhaal. Een lening met een lagere maandlast kan op de lange termijn aanzienlijk duurder uitpakken als de looptijd langer is of de rente net iets hoger.</p>
+      <p>De leningvergelijker berekent voor beide leningen de maandlast, de totale rentekosten en het totale bedrag dat je terugbetaalt. Zo zie je in één oogopslag welke lening voordeliger is — over de gehele looptijd.</p>
+
+      <h2>Hoe werkt de berekening?</h2>
+      <p>Beide leningen worden berekend met de standaard annuïteitenformule:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Annuïteitenformule (maandlast)</div>
+        <div class="formula">
+          A = <var>L</var> × [<var>r</var>(1+<var>r</var>)<sup><var>n</var></sup>] / [(1+<var>r</var>)<sup><var>n</var></sup> − 1]
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">A</span> = maandelijkse annuïteit<br>
+          <span style="color:#F4C560">L</span> = leenbedrag<br>
+          <span style="color:#F4C560">r</span> = maandelijkse rente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span> = looptijd in maanden
+        </div>
+      </div>
+
+      <h2>Looptijd vs. rentepercentage: wat heeft meer impact?</h2>
+      <p>Veel mensen denken dat het rentepercentage de grootste factor is. Maar de looptijd heeft op de totale rentekosten vaak een nog grotere invloed:</p>
+      <ul>
+        <li><strong>Lening van €200.000 bij 4% — 20 jaar:</strong> totale rente circa €88.000</li>
+        <li><strong>Lening van €200.000 bij 4% — 30 jaar:</strong> totale rente circa €143.000</li>
+        <li><strong>Lening van €200.000 bij 4,5% — 20 jaar:</strong> totale rente circa €100.000</li>
+      </ul>
+      <p>De looptijdverlenging van 10 jaar kost meer extra rente (€55.000) dan een renteverhoging van 0,5% over 20 jaar (€12.000). Toch is een langere looptijd soms verstandig als de lagere maandlast noodzakelijk is voor je budget.</p>
+
+      <h2>Effectieve jaarrente (EAR): de eerlijkste vergelijking</h2>
+      <p>Banken communiceren doorgaans de <strong>nominale rente</strong>. Maar door maandelijkse rentebijschrijving is de effectieve jaarrente (EAR) altijd iets hoger. Bij een nominale rente van 5% met maandelijkse samenstelling is de EAR: (1 + 0,05/12)¹² – 1 ≈ 5,12%.</p>
+      <p>Gebruik de <a href="rente-omrekenaar.html">rente-omrekenaar</a> om nominale tarieven te vergelijken op effectieve basis, zodat je appels met appels vergelijkt.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Kan ik leningen met verschillende bedragen vergelijken?</dt>
+          <dd>Ja. De vergelijker laat toe dat lening A en lening B verschillende bedragen, rentes én looptijden hebben. Je kunt hiermee bijvoorbeeld vergelijken: een grotere lening met lagere rente versus een kleinere lening met hogere rente, of twee aanbiedingen van verschillende banken voor hetzelfde hypotheekbedrag.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat als de ene lening een lagere maandlast heeft maar meer totale rente?</dt>
+          <dd>Dan is de keuze een afweging tussen maandelijks comfort en totale kosten. Een lagere maandlast geeft financiële ruimte in de lopende maand; hogere totale rente betekent dat je over de looptijd meer betaalt. Kies op basis van je persoonlijke financiële situatie en risicobereidheid.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Houdt de calculator rekening met rentevaste periodes?</dt>
+          <dd>Nee. De berekening gaat uit van een vaste rente over de gehele looptijd. Bij hypotheken met een rentevaste periode van bijv. 10 jaar kan de rente daarna herzien worden. Gebruik de huidige rentevaste periode als invoer voor indicatieve berekeningen.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Zijn er andere kosten waarmee ik rekening moet houden?</dt>
+          <dd>Ja. Bij hypotheken zijn er extra kosten zoals notariskosten (circa €1.500–€2.500), taxatiekosten (circa €500–€800), hypotheekadvies (circa €2.000–€3.500) en eventuele Nationale Hypotheek Garantie (NHG). Bij persoonlijke leningen kunnen afsluitkosten, boetes bij vervroegd aflossen en verzekeringen van toepassing zijn.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+    const fmtEur = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€ ' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function annuiteit(L, r, n) {
+      if (r === 0) return L / n;
+      return L * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+    }
+
+    const ids = ['a-bedrag','a-rente','a-looptijd','b-bedrag','b-rente','b-looptijd'];
+    ids.forEach(id => document.getElementById(id).addEventListener('input', calculate));
+
+    function calculate() {
+      const LA = parseFloat(document.getElementById('a-bedrag').value) || 0;
+      const jA = parseFloat(document.getElementById('a-rente').value) || 0;
+      const nA = parseInt(document.getElementById('a-looptijd').value) || 0;
+      const LB = parseFloat(document.getElementById('b-bedrag').value) || 0;
+      const jB = parseFloat(document.getElementById('b-rente').value) || 0;
+      const nB = parseInt(document.getElementById('b-looptijd').value) || 0;
+
+      if (LA <= 0 || jA <= 0 || nA <= 0 || LB <= 0 || jB <= 0 || nB <= 0) return;
+
+      const rA  = jA / 100 / 12;
+      const mA  = nA * 12;
+      const annA = annuiteit(LA, rA, mA);
+      const totA = annA * mA;
+      const renteA = totA - LA;
+
+      const rB  = jB / 100 / 12;
+      const mB  = nB * 12;
+      const annB = annuiteit(LB, rB, mB);
+      const totB = annB * mB;
+      const renteB = totB - LB;
+
+      document.getElementById('a-maand').textContent    = fmtEurDec(annA);
+      document.getElementById('a-rente-tot').textContent = fmtEur(renteA);
+      document.getElementById('a-totaal').textContent   = fmtEur(totA);
+      document.getElementById('b-maand').textContent    = fmtEurDec(annB);
+      document.getElementById('b-rente-tot').textContent = fmtEur(renteB);
+      document.getElementById('b-totaal').textContent   = fmtEur(totB);
+
+      const diff = Math.abs(renteA - renteB);
+      const cheaper = renteA < renteB ? 'Lening A' : 'Lening B';
+      const diffMonths = Math.abs(annA - annB);
+      document.getElementById('winner-text').textContent = cheaper + ' is goedkoper';
+      document.getElementById('winner-sub').textContent  = fmtEur(diff) + ' minder totale rente · ' + fmtEurDec(diffMonths) + '/mnd verschil';
+
+      buildChart(LA, renteA, LB, renteB);
+    }
+
+    function buildChart(aflA, renteA, aflB, renteB) {
+      const ctx = document.getElementById('verg-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Lening A', 'Lening B'],
+          datasets: [
+            { label: 'Aflossing', data: [Math.round(aflA), Math.round(aflB)], backgroundColor: ['#B07A10','#1E7A52'], borderRadius: 4 },
+            { label: 'Rente',    data: [Math.round(renteA), Math.round(renteB)], backgroundColor: ['#E8A020','#2A9D6A'], borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtEur(c.parsed.y) } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' }, color: '#0F1F3D' } },
+            y: { grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

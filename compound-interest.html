@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Interest Calculator — Samengestelde Rente Berekenen | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken het rente-op-rente effect op je spaargeld of beleggingen. Gratis compound interest calculator met exponentiële groeigrafiek en eindvermogen berekening.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/compound-interest">
+  <meta property="og:title" content="Compound Interest Calculator — Samengestelde Rente Berekenen">
+  <meta property="og:description" content="Bereken hoeveel je vermogen groeit door rente-op-rente. Met exponentiële groeigrafiek en volledige vermogensopbouw.">
+  <meta property="og:url" content="https://rentepermaand.nl/compound-interest">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Compound Interest Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken het rente-op-rente effect op spaargeld of beleggingen over een gekozen periode.",
+    "url": "https://rentepermaand.nl/compound-interest",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is de compound interest formule?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "De compound interest formule is: FV = PV × (1+r)^n + PMT × ((1+r)^n − 1) / r, waarbij FV het eindvermogen is, PV het startbedrag, r de maandelijkse rente, n het aantal maanden en PMT de maandelijkse inleg."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Waarom is rente-op-rente zo krachtig?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Rente-op-rente groeit exponentieel in plaats van lineair. In de beginjaren lijkt het effect klein, maar na 20–30 jaar kan de gecumuleerde rente de totale inleg ver overtreffen. Einstein zou het ooit het achtste wereldwonder hebben genoemd."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe vaak wordt rente samengesteld?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Onze calculator gebruikt maandelijkse samenstelling (12 keer per jaar), wat de standaard is voor de meeste spaarrekeningen en beleggingsfondsen. Bij dagelijkse samenstelling (365 keer per jaar) is het eindresultaat iets hoger."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--grey-text);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .growth-factor {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="spaardoel-calculator.html">Spaardoel</a>
+        <a href="compound-interest.html" class="active">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis online calculator</div>
+        <h1>Compound Interest Calculator</h1>
+        <p>Bereken hoeveel je vermogen groeit door het rente-op-rente effect. Zie het verschil tussen simpele en samengestelde rente en het eindvermogen na jouw gekozen looptijd.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Bereken je eindvermogen</h2>
+            <p>Pas de waarden aan — het eindvermogen wordt direct bijgewerkt</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="startbedrag">Startbedrag (eenmalige inleg)</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="startbedrag" value="10000" min="0" max="10000000" step="500" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="startbedrag-slider" min="0" max="500000" step="1000" value="10000">
+                <div class="slider-labels"><span>€0</span><span>€500.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="maand-inleg">Maandelijkse inleg</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="maand-inleg" value="200" min="0" max="100000" step="50" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="maand-inleg-slider" min="0" max="5000" step="50" value="200">
+                <div class="slider-labels"><span>€0</span><span>€5.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="rente-ci">Jaarlijks rendement</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rente-ci" value="7.0" min="0" max="30" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="rente-ci-slider" min="0" max="20" step="0.1" value="7.0">
+                  <div class="slider-labels"><span>0%</span><span>20%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="looptijd-ci">Looptijd (jaren)</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="looptijd-ci" value="20" min="1" max="60" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="looptijd-ci-slider" min="1" max="60" step="1" value="20">
+                  <div class="slider-labels"><span>1 jr</span><span>60 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Eindvermogen <span class="growth-factor" id="res-factor"></span></div>
+                  <div class="result-value large accent" id="res-fv-ci">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal ingelegd</div>
+                  <div class="result-value" id="res-ingelegd-ci">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal rendement</div>
+                  <div class="result-value" id="res-rente-ci">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Rendement aandeel</div>
+                  <div class="result-value" id="res-pct-ci">—</div>
+                </div>
+              </div>
+
+              <div class="split-bar-wrap">
+                <div class="split-bar-label">
+                  <span class="lbl-aflossing" id="ci-bar-inleg">Inleg</span>
+                  <span class="lbl-rente" id="ci-bar-rente">Rendement</span>
+                </div>
+                <div class="split-bar" aria-hidden="true">
+                  <div class="split-bar-fill" id="ci-split-fill" style="width:50%"></div>
+                </div>
+                <div class="split-bar-note">Verdeling van je eindvermogen</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section">
+              <h3>Exponentiële vermogensgroei</h3>
+              <div class="chart-wrap">
+                <canvas id="ci-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D"></div> Ingelegd</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Rendement</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="spaardoel-calculator.html">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+            <a href="inflatie-calculator.html">
+              <div class="tool-icon">📉</div>
+              Inflatie Calculator
+            </a>
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen Calculator
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>De kracht van tijd</h3>
+          <div class="tip-box">
+            <p><strong>Verdubbeltijd:</strong> bij 7% rendement verdubbelt je vermogen elke ~10 jaar (de Regel van 72: 72 ÷ rente = jaren).</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>10 jaar vroeger starten</strong> bij €200/maand en 7% levert op je 65ste meer dan €100.000 extra op — alleen door de langere looptijd.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Inflatie:</strong> een nominaal rendement van 7% is reëel circa 4–5% na 2–3% inflatie. Gebruik de <a href="inflatie-calculator.html">inflatie calculator</a> voor de reële waarde.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is compound interest (samengestelde rente)?</h2>
+      <p>Compound interest, of samengestelde rente, is het principe waarbij je rente ontvangt over zowel je oorspronkelijke inleg als over de eerder ontvangen rente. In tegenstelling tot enkelvoudige rente — waarbij je alleen rente over de hoofdsom ontvangt — groeit je vermogen bij samengestelde rente exponentieel.</p>
+      <p>Het verschil wordt pas echt zichtbaar over langere periodes. Na 5 jaar is het effect beperkt; na 30 jaar kan de gecumuleerde rente de totale inleg meerdere malen overtreffen. Dit is waarom financieel adviseurs zo sterk aandringen op vroeg beginnen met sparen of beleggen.</p>
+
+      <h2>De formule voor samengestelde rente</h2>
+      <p>Bij een startbedrag én een regelmatige maandelijkse inleg gebruik je de volgende formule:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Compound Interest formule (met maandelijkse inleg)</div>
+        <div class="formula">
+          FV = <var>PV</var> × (1+<var>r</var>)<sup><var>n</var></sup> + <var>PMT</var> × [(1+<var>r</var>)<sup><var>n</var></sup> − 1] / <var>r</var>
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">FV</span>  = eindvermogen<br>
+          <span style="color:#F4C560">PV</span>  = startbedrag (eenmalige inleg)<br>
+          <span style="color:#F4C560">PMT</span> = maandelijkse inleg<br>
+          <span style="color:#F4C560">r</span>   = maandelijkse rente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span>   = looptijd in maanden (jaren × 12)
+        </div>
+      </div>
+
+      <h2>De Regel van 72 — snel verdubbelen berekenen</h2>
+      <p>Een handige vuistregel om te berekenen hoe lang het duurt voordat je vermogen verdubbelt, is de <strong>Regel van 72</strong>: deel 72 door het jaarlijkse rendement. Voorbeelden:</p>
+      <ul>
+        <li>Bij <strong>4% rendement</strong>: 72 ÷ 4 = 18 jaar om te verdubbelen</li>
+        <li>Bij <strong>6% rendement</strong>: 72 ÷ 6 = 12 jaar om te verdubbelen</li>
+        <li>Bij <strong>8% rendement</strong>: 72 ÷ 8 = 9 jaar om te verdubbelen</li>
+        <li>Bij <strong>10% rendement</strong>: 72 ÷ 10 = 7,2 jaar om te verdubbelen</li>
+      </ul>
+      <p>Een startkapitaal van €10.000 bij 8% rendement groeit dus in 27 jaar (drie verdubbeltijden) naar €80.000 — zelfs zonder een euro extra in te leggen.</p>
+
+      <h2>Praktisch rendement: sparen vs. beleggen</h2>
+      <p>Het rendement dat je kiest maakt een enorm verschil in het eindresultaat. Stel: je legt €200 per maand in gedurende 30 jaar. Wat is het verschil?</p>
+      <ul>
+        <li>Bij <strong>2% (spaarrekening)</strong>: eindvermogen circa €99.000</li>
+        <li>Bij <strong>5% (obligaties)</strong>: eindvermogen circa €167.000</li>
+        <li>Bij <strong>7% (aandelen historisch)</strong>: eindvermogen circa €243.000</li>
+        <li>Bij <strong>10% (optimistisch)</strong>: eindvermogen circa €452.000</li>
+      </ul>
+      <p>Het verschil tussen 2% en 7% na 30 jaar is meer dan €144.000 — bij precies dezelfde maandelijkse inleg. Dit maakt de keuze tussen sparen en beleggen op de lange termijn zo impactvol.</p>
+
+      <h2>Compound interest vs. simpele rente</h2>
+      <p>Bij <strong>simpele rente</strong> ontvang je elk jaar hetzelfde bedrag aan rente, berekend over alleen de oorspronkelijke hoofdsom. Bij <strong>samengestelde rente</strong> ontvang je rente over de hoofdsom én alle eerder ontvangen rente. Het verschil na 20 jaar bij €10.000 en 7% rente:</p>
+      <ul>
+        <li>Simpele rente: €10.000 + 20 × €700 = €24.000</li>
+        <li>Samengestelde rente: €10.000 × 1,07²⁰ = €38.697</li>
+      </ul>
+      <p>Dat is bijna €15.000 extra — puur door samengestelde in plaats van simpele rente.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Hoe vaak wordt rente samengesteld?</dt>
+          <dd>Onze calculator gaat uit van maandelijkse samenstelling (12 periodes per jaar), wat de standaard is voor Nederlandse spaarrekeningen. Sommige beleggingsfondsen werken met dagelijkse samenstelling (365 periodes), wat een marginaal hoger eindresultaat geeft.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Houdt de calculator rekening met belasting?</dt>
+          <dd>Nee. In Nederland valt spaargeld en beleggingsvermogen boven een vrijstellingsbedrag (box 3) onder een fictief rendement waarover belasting wordt betaald. Het netto rendement na belasting is lager dan het bruto rendement dat je invult. Raadpleeg een belastingadviseur voor je persoonlijke situatie.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is het verschil met de spaardoel calculator?</dt>
+          <dd>De <a href="spaardoel-calculator.html">spaardoel calculator</a> werkt omgekeerd: je vult een doelbedrag in en berekent de benodigde maandelijkse inleg. De compound interest calculator toont juist het eindresultaat bij een bekende inleg en rendement.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is 7% rendement realistisch?</dt>
+          <dd>Het historische gemiddelde rendement van een wereldwijde aandelenindex (MSCI World) ligt op circa 7–8% per jaar na inflatie over periodes van 20+ jaar. Dit is echter een langetermijngemiddelde; op kortere termijn zijn grote schommelingen mogelijk, waaronder meerdere jaren van verlies.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chart = null;
+    const fmtEur = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€ ' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('startbedrag'), document.getElementById('startbedrag-slider'));
+    syncPair(document.getElementById('maand-inleg'), document.getElementById('maand-inleg-slider'));
+    syncPair(document.getElementById('rente-ci'), document.getElementById('rente-ci-slider'));
+    syncPair(document.getElementById('looptijd-ci'), document.getElementById('looptijd-ci-slider'));
+
+    function calcFV(PV, PMT, r, n) {
+      if (r === 0) return PV + PMT * n;
+      const f = Math.pow(1 + r, n);
+      return PV * f + PMT * (f - 1) / r;
+    }
+
+    function calculate() {
+      const PV    = parseFloat(document.getElementById('startbedrag').value) || 0;
+      const PMT   = parseFloat(document.getElementById('maand-inleg').value) || 0;
+      const j     = parseFloat(document.getElementById('rente-ci').value) || 0;
+      const jaren = parseInt(document.getElementById('looptijd-ci').value) || 0;
+
+      if ((PV <= 0 && PMT <= 0) || jaren <= 0) return;
+
+      const r  = j / 100 / 12;
+      const n  = jaren * 12;
+      const FV = calcFV(PV, PMT, r, n);
+
+      const totaalIngelegd  = PV + PMT * n;
+      const totaalRendement = FV - totaalIngelegd;
+      const inlegPct = Math.min(100, totaalIngelegd / FV * 100);
+      const rendPct  = Math.max(0, 100 - inlegPct);
+      const factor   = totaalIngelegd > 0 ? FV / totaalIngelegd : 0;
+
+      document.getElementById('res-fv-ci').textContent      = fmtEur(FV);
+      document.getElementById('res-factor').textContent     = factor >= 1.01 ? '(×' + factor.toFixed(1) + ')' : '';
+      document.getElementById('res-ingelegd-ci').textContent = fmtEur(totaalIngelegd);
+      document.getElementById('res-rente-ci').textContent   = fmtEur(totaalRendement);
+      document.getElementById('res-pct-ci').textContent     = rendPct.toFixed(1) + '%';
+      document.getElementById('ci-split-fill').style.width  = inlegPct.toFixed(1) + '%';
+      document.getElementById('ci-bar-inleg').textContent   = 'Inleg ' + inlegPct.toFixed(1) + '%';
+      document.getElementById('ci-bar-rente').textContent   = 'Rendement ' + rendPct.toFixed(1) + '%';
+
+      buildChart(PV, PMT, r, n, jaren);
+    }
+
+    function buildChart(PV, PMT, r, n, jaren) {
+      const ctx = document.getElementById('ci-chart').getContext('2d');
+      if (chart) chart.destroy();
+
+      const labels = [], dataInleg = [], dataRente = [];
+
+      for (let y = 1; y <= jaren; y++) {
+        const m  = y * 12;
+        const fv = calcFV(PV, PMT, r, m);
+        const inl = PV + PMT * m;
+        labels.push('Jaar ' + y);
+        dataInleg.push(Math.round(inl));
+        dataRente.push(Math.round(Math.max(0, fv - inl)));
+      }
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Ingelegd', data: dataInleg, backgroundColor: '#1A3260', borderRadius: 3, stack: 'v' },
+            { label: 'Rendement', data: dataRente, backgroundColor: '#2A9D6A', borderRadius: 3, stack: 'v' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtEur(c.parsed.y) } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { stacked: true, grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) } }
+          }
+        }
+      });
+    }
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>
