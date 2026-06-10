@@ -3,39 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annuïteiten Calculator | RentePerMaand.nl</title>
+    <title>Annuïteiten Calculator | Bereken je maandlasten | RentePerMaand.nl</title>
+    <meta name="description" content="Bereken direct je maandelijkse annuïteiten. Inclusief rente en aflossing inzicht. Ontdek wat je betaalt per maand voor je hypotheek of lening.">
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; }
-        input { width: 100%; padding: 0.5rem; margin-top: 0.2rem; border: 1px solid #ccc; border-radius: 4px; }
-        button { background: #0056b3; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; }
-        #resultaat { margin-top: 2rem; padding: 1rem; background: #f4f4f4; border-radius: 4px; display: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #333; }
+        .calculator-box { background: #fff; border: 1px solid #ddd; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #0056b3; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; }
+        button:hover { background: #004494; }
+        #resultaat { margin-top: 2rem; display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
 
-    <h1>Annuïteiten Calculator</h1>
-    <p>Bereken eenvoudig je maandelijkse annuïteit.</p>
+    <article>
+        <h1>Annuïteiten Calculator</h1>
+        <p>Wil je weten wat je maandelijkse verplichtingen zijn bij een annuïteitenlening? Gebruik onze calculator voor een helder overzicht van je bruto maandlasten.</p>
 
-    <div class="input-group">
-        <label>Leningbedrag (€):</label>
-        <input type="number" id="bedrag" placeholder="Bijv. 250000">
-    </div>
-    <div class="input-group">
-        <label>Jaarlijkse rente (%):</label>
-        <input type="number" id="rente" step="0.01" placeholder="Bijv. 3.5">
-    </div>
-    <div class="input-group">
-        <label>Looptijd (jaren):</label>
-        <input type="number" id="jaren" placeholder="Bijv. 30">
-    </div>
-    <button onclick="bereken()">Bereken Maandlast</button>
+        <div class="calculator-box">
+            <div class="input-group">
+                <label>Leningbedrag (€):</label>
+                <input type="number" id="bedrag" placeholder="Bijv. 250000">
+            </div>
+            <div class="input-group">
+                <label>Jaarlijkse rente (%):</label>
+                <input type="number" id="rente" step="0.01" placeholder="Bijv. 3.5">
+            </div>
+            <div class="input-group">
+                <label>Looptijd (jaren):</label>
+                <input type="number" id="jaren" placeholder="Bijv. 30">
+            </div>
+            <button onclick="bereken()">Bereken mijn maandlast</button>
+        </div>
 
-    <div id="resultaat">
-        <h3>Resultaat:</h3>
-        <p>Jouw maandbedrag is: <strong>€ <span id="uitkomst"></span></strong></p>
-    </div>
+        <div id="resultaat">
+            <h3>Jouw indicatie</h3>
+            <p>Jouw maandbedrag is: <strong>€ <span id="uitkomst"></span></strong></p>
+            <div id="tabel-container"></div>
+        </div>
+
+        <hr>
+
+        <h2>Wat is een annuïteitenlening?</h2>
+        <p>Bij een annuïteitenlening betaal je maandelijks een vast bedrag aan rente en aflossing. In het begin van de looptijd bestaat het maandbedrag grotendeels uit rente, aan het eind vooral uit aflossing. Dit is een veelgebruikte vorm bij hypotheken.</p>
+
+        <h2>Veelgestelde vragen</h2>
+        <h3>Is deze berekening inclusief belastingen?</h3>
+        <p>Nee, deze tool berekent de bruto maandlasten. Afhankelijk van je situatie kun je in Nederland vaak hypotheekrenteaftrek krijgen, waardoor je netto maandlasten lager uitvallen.</p>
+    </article>
 
     <script>
         function bereken() {
@@ -47,8 +67,20 @@
                 const M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
                 document.getElementById('uitkomst').innerText = M.toFixed(2);
                 document.getElementById('resultaat').style.display = 'block';
+                
+                // Simpele tabel voor de eerste 3 maanden als voorbeeld
+                let html = '<table><tr><th>Maand</th><th>Aflossing</th><th>Rente</th></tr>';
+                let saldo = P;
+                for(let i=1; i<=3; i++) {
+                    let interest = saldo * r;
+                    let aflos = M - interest;
+                    saldo -= aflos;
+                    html += `<tr><td>${i}</td><td>€${aflos.toFixed(2)}</td><td>€${interest.toFixed(2)}</td></tr>`;
+                }
+                html += '</table>';
+                document.getElementById('tabel-container').innerHTML = html;
             } else {
-                alert('Vul alle velden correct in.');
+                alert('Vul alle velden in.');
             }
         }
     </script>
