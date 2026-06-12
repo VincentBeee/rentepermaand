@@ -25,8 +25,8 @@
 ├── leningvergelijker.html          # ✅ Gereed
 ├── rente-omrekenaar.html           # ✅ Gereed
 ├── hypotheek-verloop.html          # ✅ Gereed
-├── schenking-calculator.html       # 🔲 Gepland (Fase 4)
-├── lening-amortisatie.html         # 🔲 Gepland (Fase 4)
+├── schenking-calculator.html       # ✅ Gereed
+├── lening-amortisatie.html         # ✅ Gereed
 ├── css/
 │   └── style.css                   # Gedeeld design systeem
 ├── sitemap.xml                     # ✅ Gereed (7 URLs)
@@ -97,65 +97,6 @@ Altijd dezelfde versie gebruiken.
 | Hypotheek Verloop | hypotheek verloop grafiek | hypotheek aflossingsschema |
 | Schenking Calculator | schenking calculator | vermogensoverdracht berekenen |
 | Amortisatie Tool | amortisatie schema | aflossingstabel exporteren |
-
----
-
-## Tools — Prioriteit & Status
-
-### ✅ Fase 1 — Gereed
-1. **Annuïteiten Calculator** (`annuiteitencalculator.html`)
-   - Sliders voor leenbedrag/rente/looptijd
-   - Gestapeld staafdiagram + restschuld lijn (Chart.js)
-   - Uitklapbare amortisatietabel
-   - CSV-export
-
-2. **Extra Aflossen Calculator** (`extra-aflossen.html`)
-   - Vergelijking zonder/met extra aflossing
-   - Groene "Totale besparing" hero
-   - Lijndiagram restschuld beide scenario's
-
-### ✅ Fase 2 — Gereed
-3. **Spaardoel Calculator** (`spaardoel-calculator.html`)
-   - PMT-formule: benodigde maandelijkse inleg berekenen
-   - Gestapeld staafdiagram: inleg vs rendement per jaar
-
-4. **Compound Interest Calculator** (`compound-interest.html`)
-   - FV-formule: eindvermogen + groeifactor
-   - Gestapeld staafdiagram: exponentiële groeicurve
-
-### ✅ Fase 3 — Gereed
-5. **Inflatie Calculator** (`inflatie-calculator.html`)
-   - Reële koopkracht vs. nominale waarde vs. belegd vermogen
-   - Lijndiagram met 3 scenario's
-
-6. **Leningvergelijker** (`leningvergelijker.html`)
-   - Twee leningen naast elkaar: maandlast, totale rente, totaal
-   - Staafdiagram kostenvergelijking
-
-7. **Rente-omrekenaar** (`rente-omrekenaar.html`)
-   - EAR-formule: nominaal → effectief per frequentie
-   - Vergelijkingstabel + staafdiagram alle frequenties
-
-### ✅ Fase 4 — Deels gereed
-8. **Hypotheek-verloop Grafiek** (`hypotheek-verloop.html`) ✅
-   - LTV-verloopbalk (nu / na RVP / einde)
-   - Omslagpunt + helft-afgelost mijlpalen
-   - Stacked bar: rente vs aflossing per jaar
-   - Lijndiagram restschuld met custom RVP-markerlijn
-   - Uitklapbare jaaroverzichttabel + CSV-export
-
-9. **Schenking Calculator** (`schenking-calculator.html`) ✅
-   - Relatie-tabs: ouder→kind / grootouder→kleinkind / overigen
-   - Actuele vrijstellingen 2025 + schenkbelasting tarieven
-   - Stacked bar: belastingvrij vs belasting vs rendement per jaar
-   - Lijndiagram: cumulatief netto ontvangen vs eindvermogen
-
-10. **Lening Amortisatie Tool** (`lening-amortisatie.html`) ✅
-    - Annuïtair / lineair toggle + vergelijkingstabel
-    - Extra maandelijkse aflossing + startdatum
-    - Stacked bar rente/aflossing per jaar
-    - Lijndiagram restschuld annuïtair vs lineair
-    - Volledig maandelijks schema + CSV-export + print
 
 ---
 
