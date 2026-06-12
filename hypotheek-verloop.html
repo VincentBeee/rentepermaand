@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F179VKF42F"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F179VKF42F');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hypotheek Verloop Grafiek — Aflossingsschema Berekenen | RentePerMaand.nl</title>
+  <meta name="description" content="Bekijk het volledige verloop van je hypotheek: rente vs aflossing per jaar, restschuld, omslagpunt en einde rentevaste periode. Gratis interactieve grafiek.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/hypotheek-verloop">
+  <meta property="og:title" content="Hypotheek Verloop Grafiek — Aflossingsschema Berekenen">
+  <meta property="og:description" content="Interactieve grafiek van je hypotheekverloop: rente vs aflossing per jaar, omslagpunt en restschuld over de looptijd.">
+  <meta property="og:url" content="https://rentepermaand.nl/hypotheek-verloop">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Hypotheek Verloop Grafiek",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Interactieve grafiek van het volledige hypotheekverloop: rente, aflossing, restschuld en omslagpunt per jaar.",
+    "url": "https://rentepermaand.nl/hypotheek-verloop",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is het omslagpunt bij een annuïtaire hypotheek?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Het omslagpunt is het moment waarop je maandelijkse aflossing voor het eerst groter is dan de maandelijkse rente. Bij een annuïtaire hypotheek van 30 jaar en een rente van 4% ligt dit omslagpunt rond jaar 15-17. Vóór het omslagpunt betaal je relatief veel rente; erna gaat steeds meer naar aflossing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat gebeurt er na de rentevaste periode?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Na de rentevaste periode wordt je hypotheekrente herzien op basis van de dan geldende marktrente. Dit kan hoger of lager zijn dan je huidige tarief. De nieuwe maandlast wordt herberekend op basis van de resterende schuld, de nieuwe rente en de resterende looptijd."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe snel daalt mijn restschuld bij een annuïtaire hypotheek?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Langzamer dan de meeste mensen verwachten. Bij een 30-jarige hypotheek van €300.000 op 4% is de restschuld na 10 jaar nog circa €240.000 — slechts €60.000 minder. Na 20 jaar is er circa €145.000 afgelost. De restschuld daalt in de eerste helft veel langzamer dan in de tweede helft."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .milestone-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    @media (max-width: 540px) { .milestone-row { grid-template-columns: 1fr; } }
+
+    .milestone-card {
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .milestone-card.orange {
+      background: rgba(232,160,32,0.12);
+      border: 1px solid rgba(232,160,32,0.3);
+    }
+    .milestone-card.green {
+      background: rgba(42,157,106,0.12);
+      border: 1px solid rgba(42,157,106,0.3);
+    }
+    .milestone-card.blue {
+      background: rgba(15,31,61,0.15);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .milestone-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .milestone-card.orange .milestone-label { color: var(--gold); }
+    .milestone-card.green .milestone-label  { color: #2A9D6A; }
+    .milestone-card.blue .milestone-label   { color: rgba(255,255,255,0.55); }
+    .milestone-value {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1.1;
+    }
+    .milestone-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+    }
+
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-wrap-tall {
+      position: relative;
+      height: 300px;
+      margin-top: 8px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--grey-text); font-weight: 500; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .legend-dash { width: 20px; height: 3px; border-radius: 2px; flex-shrink: 0; background: repeating-linear-gradient(90deg, #0F1F3D 0 6px, transparent 6px 10px); }
+
+    .table-section { margin-top: 8px; }
+    .table-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 2px solid var(--grey-light);
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .table-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .table-toggle .icon { transition: transform 0.3s; }
+    .table-toggle.open .icon { transform: rotate(180deg); }
+    .amort-table-wrap { display: none; margin-top: 16px; overflow-x: auto; }
+    .amort-table-wrap.visible { display: block; }
+
+    .ltv-bar-wrap { margin-top: 20px; }
+    .ltv-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .ltv-label { font-size: 0.78rem; color: rgba(255,255,255,0.55); width: 60px; flex-shrink: 0; }
+    .ltv-bar-outer { flex: 1; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+    .ltv-bar-inner { height: 100%; border-radius: 5px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .ltv-pct { font-size: 0.8rem; font-weight: 600; color: white; width: 46px; text-align: right; flex-shrink: 0; }
+
+    .select-wrap { position: relative; }
+    .select-wrap select {
+      width: 100%;
+      padding: 12px 16px;
+      padding-right: 40px;
+      border: 2px solid var(--grey-light);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--navy);
+      background: var(--cream);
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .select-wrap select:focus { outline: none; border-color: var(--gold); background: white; }
+    .select-arrow { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--grey-mid); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="hypotheek-verloop.html" class="active">Hypotheek Verloop</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Gratis interactieve grafiek</div>
+        <h1>Hypotheek Verloop Grafiek</h1>
+        <p>Zie precies hoe je hypotheek zich ontwikkelt: de jaarlijkse verdeling tussen rente en aflossing, het omslagpunt, de restschuld en het einde van je rentevaste periode.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Stel je hypotheek in</h2>
+            <p>Grafieken en mijlpunten worden direct bijgewerkt</p>
+          </div>
+          <div class="calc-body">
+
+            <div class="field-group">
+              <label for="hyp-bedrag">Hypotheekbedrag</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="hyp-bedrag" value="350000" min="10000" max="5000000" step="5000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="hyp-bedrag-slider" min="50000" max="1000000" step="5000" value="350000">
+                <div class="slider-labels"><span>€50.000</span><span>€1.000.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="hyp-waarde">Woningwaarde (voor LTV)</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="hyp-waarde" value="420000" min="10000" max="5000000" step="5000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="hyp-waarde-slider" min="50000" max="1500000" step="5000" value="420000">
+                <div class="slider-labels"><span>€50.000</span><span>€1.500.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="hyp-rente">Jaarrente</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="hyp-rente" value="4.2" min="0.1" max="15" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="hyp-rente-slider" min="0.5" max="10" step="0.1" value="4.2">
+                  <div class="slider-labels"><span>0,5%</span><span>10%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="hyp-looptijd">Looptijd (jaren)</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="hyp-looptijd" value="30" min="5" max="50" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="hyp-looptijd-slider" min="5" max="50" step="1" value="30">
+                  <div class="slider-labels"><span>5 jr</span><span>50 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="rvp-select">Rentevaste periode</label>
+              <div class="select-wrap">
+                <select id="rvp-select">
+                  <option value="1">1 jaar</option>
+                  <option value="5">5 jaar</option>
+                  <option value="10" selected>10 jaar</option>
+                  <option value="15">15 jaar</option>
+                  <option value="20">20 jaar</option>
+                  <option value="30">30 jaar</option>
+                </select>
+                <span class="select-arrow">▼</span>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Maandlast</div>
+                  <div class="result-value large accent" id="res-maandlast">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totale rente</div>
+                  <div class="result-value" id="res-totaal-rente">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal terugbetalen</div>
+                  <div class="result-value" id="res-totaal">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Restschuld na RVP</div>
+                  <div class="result-value" id="res-rest-rvp">—</div>
+                </div>
+              </div>
+
+              <!-- LTV bar -->
+              <div class="ltv-bar-wrap">
+                <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Loan-to-Value (LTV)</div>
+                <div class="ltv-row">
+                  <span class="ltv-label">Nu</span>
+                  <div class="ltv-bar-outer"><div class="ltv-bar-inner" id="ltv-nu" style="width:83%;background:#E05A40;"></div></div>
+                  <span class="ltv-pct" id="ltv-nu-pct">—</span>
+                </div>
+                <div class="ltv-row">
+                  <span class="ltv-label">Na RVP</span>
+                  <div class="ltv-bar-outer"><div class="ltv-bar-inner" id="ltv-rvp" style="width:60%;background:#E8A020;"></div></div>
+                  <span class="ltv-pct" id="ltv-rvp-pct">—</span>
+                </div>
+                <div class="ltv-row">
+                  <span class="ltv-label">Einde</span>
+                  <div class="ltv-bar-outer"><div class="ltv-bar-inner" id="ltv-einde" style="width:0%;background:#2A9D6A;"></div></div>
+                  <span class="ltv-pct" id="ltv-einde-pct">0%</span>
+                </div>
+              </div>
+
+              <!-- Milestones -->
+              <div class="milestone-row">
+                <div class="milestone-card orange">
+                  <div class="milestone-label">Omslagpunt</div>
+                  <div class="milestone-value" id="ms-omslagpunt">—</div>
+                  <div class="milestone-sub">aflossing &gt; rente</div>
+                </div>
+                <div class="milestone-card green">
+                  <div class="milestone-label">Helft afgelost</div>
+                  <div class="milestone-value" id="ms-helft">—</div>
+                  <div class="milestone-sub">50% restschuld</div>
+                </div>
+                <div class="milestone-card blue">
+                  <div class="milestone-label">Einde RVP</div>
+                  <div class="milestone-value" id="ms-rvp">—</div>
+                  <div class="milestone-sub" id="ms-rvp-sub">restschuld op dat moment</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 1: Jaaroverzicht -->
+            <div class="chart-section">
+              <h3>Rente vs Aflossing per jaar</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="verloop-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#E05A40"></div> Rente per jaar</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Aflossing per jaar</div>
+                <div class="legend-item"><div class="legend-dash"></div> Einde rentevaste periode</div>
+              </div>
+            </div>
+
+            <!-- Chart 2: Restschuld -->
+            <div class="chart-section">
+              <h3>Restschuld over de looptijd</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="schuld-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D;opacity:0.7"></div> Restschuld</div>
+                <div class="legend-item"><div class="legend-dash"></div> Einde rentevaste periode</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Jaaroverzicht tabel -->
+        <div class="calc-card" style="margin-top:20px;">
+          <div class="calc-header">
+            <h2>Jaaroverzicht</h2>
+            <p>Rente, aflossing en restschuld per jaar</p>
+          </div>
+          <div class="calc-body">
+            <div class="table-section">
+              <button class="table-toggle" id="tabel-toggle" aria-expanded="false">
+                <span>Toon jaaroverzicht</span>
+                <span class="icon">▼</span>
+              </button>
+              <div class="amort-table-wrap" id="tabel-wrap">
+                <table id="jaar-tabel">
+                  <thead>
+                    <tr>
+                      <th>Jaar</th>
+                      <th>Rente</th>
+                      <th>Aflossing</th>
+                      <th>Totaal betaald</th>
+                      <th>Restschuld</th>
+                      <th>LTV</th>
+                    </tr>
+                  </thead>
+                  <tbody id="jaar-tbody"></tbody>
+                </table>
+              </div>
+              <button class="export-btn" id="export-csv" style="display:none">
+                ⬇ Exporteer naar CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Andere tools</h3>
+          <nav class="related-tools">
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen Calculator
+            </a>
+            <a href="leningvergelijker.html">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+            <a href="rente-omrekenaar.html">
+              <div class="tool-icon">🔄</div>
+              Rente-omrekenaar
+            </a>
+            <a href="inflatie-calculator.html">
+              <div class="tool-icon">📉</div>
+              Inflatie Calculator
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Hypotheektips</h3>
+          <div class="tip-box">
+            <p><strong>LTV onder 80%:</strong> bij een Loan-to-Value onder 80% kom je in aanmerking voor de gunstigste rentetarieven bij de meeste banken.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>NHG-grens 2025:</strong> hypotheken tot €435.000 komen in aanmerking voor Nationale Hypotheek Garantie, wat doorgaans een rentevoordeel van 0,4–0,6% oplevert.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Extra aflossen:</strong> een extra aflossing verlaagt je restschuld direct en verplaatst het omslagpunt eerder. Gebruik de <a href="extra-aflossen.html">Extra Aflossen Calculator</a> om de besparing te berekenen.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Rentevaste periode:</strong> een langere rentevaste periode geeft zekerheid maar kost doorgaans meer. Na de RVP wordt de rente herzien op basis van de dan geldende marktrente.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is een hypotheek verloop grafiek?</h2>
+      <p>Een hypotheek verloop grafiek toont hoe je hypotheek zich ontwikkelt over de gehele looptijd: de maandlast blijft bij een annuïtaire hypotheek gelijk, maar de verdeling tussen rente en aflossing verandert elk jaar. In het begin gaat het grootste deel naar rente; aan het einde bijna alles naar aflossing.</p>
+      <p>De grafiek maakt dit verloop inzichtelijk en toont ook wichtige mijlpunten: wanneer daalt je restschuld onder de 50% van de oorspronkelijke hypotheek? Wanneer overtreeft de aflossing voor het eerst de rente — het zogeheten omslagpunt? En wat is de situatie op het moment dat je rentevaste periode afloopt?</p>
+
+      <h2>Hoe werkt de berekening?</h2>
+      <p>De hypotheek wordt berekend als een annuïteitenlening. De maandlast (<var>A</var>) is gedurende de volledige looptijd gelijk en wordt berekend met:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Annuïteitenformule</div>
+        <div class="formula">
+          A = <var>L</var> × [<var>r</var>(1+<var>r</var>)<sup><var>n</var></sup>] / [(1+<var>r</var>)<sup><var>n</var></sup> − 1]
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">A</span> = maandlast<br>
+          <span style="color:#F4C560">L</span> = hypotheekbedrag<br>
+          <span style="color:#F4C560">r</span> = maandelijkse rente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span> = looptijd in maanden
+        </div>
+      </div>
+
+      <p>Voor elke maand berekent de tool vervolgens hoeveel van de maandlast naar rente gaat (restschuld × maandrente) en hoeveel naar aflossing (maandlast − rente). De restschuld daalt elke maand met het aflossindeel.</p>
+
+      <h2>Het omslagpunt: wanneer betaal je meer aflossing dan rente?</h2>
+      <p>Bij elke annuïtaire hypotheek is er een <strong>omslagpunt</strong> — het exacte moment waarop je maandelijkse aflossing voor het eerst groter wordt dan de betaalde rente die maand. Vóór het omslagpunt gaat meer dan de helft van je maandlast naar rente; erna gaat meer naar aflossing.</p>
+      <p>Het omslagpunt ligt altijd precies op de helft van de looptijd. Bij een 30-jarige hypotheek is dat rond jaar 15, bij een 20-jarige hypotheek rond jaar 10. Dit geldt ongeacht het rentepercentage — alleen de looptijd bepaalt wanneer het omslagpunt wordt bereikt.</p>
+
+      <h2>Loan-to-Value (LTV): wat is het en waarom is het belangrijk?</h2>
+      <p>De <strong>Loan-to-Value</strong> (LTV) is de verhouding tussen de hypotheekschuld en de woningwaarde, uitgedrukt als percentage. Een hypotheek van €350.000 op een woning van €420.000 geeft een LTV van 83,3%.</p>
+      <p>De LTV is om twee redenen belangrijk:</p>
+      <ul>
+        <li><strong>Renteopslag:</strong> bij een hogere LTV rekenen banken een hogere rente. Daalt je LTV door aflossing of waardestijging van de woning onder 80%, dan heb je recht op een lagere renteopslag bij renteverlenging.</li>
+        <li><strong>NHG:</strong> de Nationale Hypotheek Garantie is beschikbaar voor hypotheken tot €435.000 (2025) en geeft toegang tot een gunstigere rente. De LTV mag daarvoor niet hoger zijn dan 100% van de marktwaarde.</li>
+      </ul>
+      <p>De verloopgrafiek toont de LTV op drie momenten: nu (bij aanvang), na de rentevaste periode, en aan het einde van de looptijd (altijd 0% — de hypotheek is dan volledig afgelost).</p>
+
+      <h2>Rentevaste periode: wat verandert er daarna?</h2>
+      <p>De rentevaste periode (RVP) is de periode waarvoor je hypotheekrente vaststaat. Na de RVP wordt de rente herzien. Dit kan gunstig uitpakken (als de marktrente gedaald is) maar ook ongunstig (als de marktrente gestegen is).</p>
+      <p>Op het moment van renteherziening wordt je nieuwe maandlast berekend op basis van de resterende schuld, de nieuwe rente en de resterende looptijd. De grafiek toont met een verticale stippellijn precies wanneer je rentevaste periode eindigt en wat de restschuld op dat moment is.</p>
+      <p>Tip: als je LTV op het moment van renteherziening onder een drempelwaarde is gedaald (bijv. 80%, 75% of 60%), heb je recht op een lagere renteopslag. Controleer dit bij je bank vóór de RVP afloopt.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Waarom daalt mijn restschuld zo langzaam in de eerste jaren?</dt>
+          <dd>Bij een annuïtaire hypotheek is de maandlast gelijk, maar in het begin bestaat die vrijwel geheel uit rente. De aflossing is in het eerste jaar minimaal. Pas na het omslagpunt (halverwege de looptijd) daalt de restschuld steeds sneller. Dit is het wiskundige gevolg van de annuïteitenformule en geldt voor elke hypotheek met een vaste maandlast.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is het verschil tussen een lineaire en annuïtaire hypotheek?</dt>
+          <dd>Bij een <strong>lineaire hypotheek</strong> los je elke maand een vast bedrag af (hypotheek ÷ looptijd in maanden). De rente daalt daardoor maandelijks, en ook de maandlast daalt. In totaal betaal je minder rente, maar de beginmaandlasten zijn hoger. Bij een <strong>annuïtaire hypotheek</strong> is de maandlast altijd gelijk, maar betaal je in totaal meer rente. De annuïtaire hypotheek is in Nederland veruit het meest voorkomend.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Hoe bereken ik mijn nieuwe maandlast na de rentevaste periode?</dt>
+          <dd>Na de RVP wordt de maandlast herberekend met dezelfde annuïteitenformule, maar nu op basis van: de resterende schuld op dat moment, de nieuwe rente, en de resterende looptijd. Gebruik de <a href="annuiteitencalculator.html">annuïteiten calculator</a> met deze nieuwe gegevens om je nieuwe maandlast te berekenen.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik tussendoor extra aflossen?</dt>
+          <dd>Ja. De meeste hypotheekverstrekkers staan 10–20% boetevrije extra aflossing per jaar toe. Extra aflossen verlaagt de restschuld en daarmee de rente die je daarna betaalt. Gebruik de <a href="extra-aflossen.html">Extra Aflossen Calculator</a> om de exacte besparing te berekenen.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="hypotheek-verloop.html">Hypotheek Verloop</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let chartVerloop = null;
+    let chartSchuld  = null;
+    let jaarData     = [];
+
+    const fmtEur    = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€ ' + v.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2});
+    const fmtPct    = v => v.toFixed(1) + '%';
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('hyp-bedrag'),  document.getElementById('hyp-bedrag-slider'));
+    syncPair(document.getElementById('hyp-waarde'),  document.getElementById('hyp-waarde-slider'));
+    syncPair(document.getElementById('hyp-rente'),   document.getElementById('hyp-rente-slider'));
+    syncPair(document.getElementById('hyp-looptijd'),document.getElementById('hyp-looptijd-slider'));
+    document.getElementById('rvp-select').addEventListener('change', calculate);
+
+    function annuiteit(L, r, n) {
+      if (r === 0) return L / n;
+      return L * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+    }
+
+    function buildMonthlySchedule(L, r, n) {
+      const ann = annuiteit(L, r, n);
+      const months = [];
+      let saldo = L;
+      for (let m = 1; m <= n; m++) {
+        const renteDeel = saldo * r;
+        const aflDeel   = Math.min(ann - renteDeel, saldo);
+        saldo = Math.max(0, saldo - aflDeel);
+        months.push({ m, renteDeel, aflDeel, ann, saldo });
+      }
+      return { ann, months };
+    }
+
+    function aggregateYearly(months, jaren, waarde) {
+      const yearly = [];
+      for (let y = 1; y <= jaren; y++) {
+        const slice = months.slice((y-1)*12, y*12);
+        if (!slice.length) break;
+        const renteJaar = slice.reduce((s, m) => s + m.renteDeel, 0);
+        const aflJaar   = slice.reduce((s, m) => s + m.aflDeel,   0);
+        const saldo     = slice[slice.length-1].saldo;
+        const ltv       = waarde > 0 ? (saldo / waarde * 100) : 0;
+        yearly.push({ y, renteJaar, aflJaar, saldo, ltv });
+      }
+      return yearly;
+    }
+
+    function calculate() {
+      const L      = parseFloat(document.getElementById('hyp-bedrag').value)  || 0;
+      const waarde = parseFloat(document.getElementById('hyp-waarde').value)  || 0;
+      const j      = parseFloat(document.getElementById('hyp-rente').value)   || 0;
+      const jaren  = parseInt(document.getElementById('hyp-looptijd').value)  || 0;
+      const rvp    = parseInt(document.getElementById('rvp-select').value)    || 10;
+
+      if (L <= 0 || j <= 0 || jaren <= 0) return;
+
+      const r = j / 100 / 12;
+      const n = jaren * 12;
+
+      const { ann, months } = buildMonthlySchedule(L, r, n);
+      jaarData = aggregateYearly(months, jaren, waarde);
+
+      const totaal      = ann * n;
+      const totaalRente = totaal - L;
+
+      // Milestones
+      const omslagMaand = months.findIndex(m => m.aflDeel >= m.renteDeel);
+      const omslagJaar  = omslagMaand >= 0 ? Math.ceil((omslagMaand + 1) / 12) : null;
+
+      const helftIdx  = months.findIndex(m => m.saldo <= L / 2);
+      const helftJaar = helftIdx >= 0 ? Math.ceil((helftIdx + 1) / 12) : null;
+
+      const rvpMaand = Math.min(rvp * 12, n) - 1;
+      const restRvp  = months[rvpMaand]?.saldo ?? 0;
+
+      // LTV
+      const ltvNu    = waarde > 0 ? L / waarde * 100 : 0;
+      const ltvRvp   = waarde > 0 ? restRvp / waarde * 100 : 0;
+
+      // Update DOM — results
+      document.getElementById('res-maandlast').textContent    = fmtEurDec(ann);
+      document.getElementById('res-totaal-rente').textContent = fmtEur(totaalRente);
+      document.getElementById('res-totaal').textContent       = fmtEur(totaal);
+      document.getElementById('res-rest-rvp').textContent     = fmtEur(restRvp);
+
+      // LTV bars
+      function setLtvBar(barId, pctId, pct) {
+        const capped = Math.min(100, Math.max(0, pct));
+        document.getElementById(barId).style.width = capped.toFixed(1) + '%';
+        document.getElementById(pctId).textContent = fmtPct(pct);
+      }
+      setLtvBar('ltv-nu',    'ltv-nu-pct',    ltvNu);
+      setLtvBar('ltv-rvp',   'ltv-rvp-pct',   ltvRvp);
+      setLtvBar('ltv-einde', 'ltv-einde-pct', 0);
+
+      // Milestones
+      document.getElementById('ms-omslagpunt').textContent = omslagJaar ? 'Jaar ' + omslagJaar : '—';
+      document.getElementById('ms-helft').textContent      = helftJaar  ? 'Jaar ' + helftJaar  : '—';
+      document.getElementById('ms-rvp').textContent        = 'Jaar ' + rvp;
+      document.getElementById('ms-rvp-sub').textContent    = fmtEur(restRvp) + ' restschuld';
+
+      buildChartVerloop(jaarData, rvp);
+      buildChartSchuld(jaarData, rvp);
+
+      if (document.getElementById('tabel-wrap').classList.contains('visible')) buildTable();
+    }
+
+    // Custom plugin: vertical dashed line at rentevaste periode
+    const rvpLinePlugin = {
+      id: 'rvpLine',
+      afterDraw(chart, args, opts) {
+        if (opts.xIndex == null) return;
+        const { ctx, chartArea, scales } = chart;
+        const xPos = scales.x.getPixelForValue(opts.xIndex);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(xPos, chartArea.top);
+        ctx.lineTo(xPos, chartArea.bottom);
+        ctx.strokeStyle = '#0F1F3D';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#0F1F3D';
+        ctx.font = '600 11px "DM Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('RVP', xPos, chartArea.top - 6);
+        ctx.restore();
+      }
+    };
+
+    function buildChartVerloop(data, rvp) {
+      const ctx = document.getElementById('verloop-chart').getContext('2d');
+      if (chartVerloop) chartVerloop.destroy();
+
+      const labels    = data.map(d => 'Jaar ' + d.y);
+      const renteData = data.map(d => Math.round(d.renteJaar));
+      const aflData   = data.map(d => Math.round(d.aflJaar));
+      const rvpIdx    = Math.min(rvp, data.length) - 1;
+
+      chartVerloop = new Chart(ctx, {
+        type: 'bar',
+        plugins: [rvpLinePlugin],
+        data: {
+          labels,
+          datasets: [
+            { label: 'Rente',     data: renteData, backgroundColor: '#E05A40', borderRadius: 3, stack: 's' },
+            { label: 'Aflossing', data: aflData,   backgroundColor: '#2A9D6A', borderRadius: 3, stack: 's' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtEur(c.parsed.y) } },
+            rvpLine: { xIndex: rvpIdx }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { stacked: true, grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    function buildChartSchuld(data, rvp) {
+      const ctx = document.getElementById('schuld-chart').getContext('2d');
+      if (chartSchuld) chartSchuld.destroy();
+
+      const labels    = data.map(d => 'Jaar ' + d.y);
+      const schuldData = data.map(d => Math.round(d.saldo));
+      const rvpIdx    = Math.min(rvp, data.length) - 1;
+
+      chartSchuld = new Chart(ctx, {
+        type: 'line',
+        plugins: [rvpLinePlugin],
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Restschuld',
+              data: schuldData,
+              borderColor: '#0F1F3D',
+              backgroundColor: 'rgba(15,31,61,0.07)',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' Restschuld: ' + fmtEur(c.parsed.y) } },
+            rvpLine: { xIndex: rvpIdx }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    function buildTable() {
+      const waarde = parseFloat(document.getElementById('hyp-waarde').value) || 0;
+      const rows = jaarData.map(d => {
+        const ltv = waarde > 0 ? fmtPct(d.saldo / waarde * 100) : '—';
+        return `<tr>
+          <td>${d.y}</td>
+          <td class="td-rente">${fmtEur(d.renteJaar)}</td>
+          <td class="td-aflossing">${fmtEur(d.aflJaar)}</td>
+          <td>${fmtEur(d.renteJaar + d.aflJaar)}</td>
+          <td>${fmtEur(d.saldo)}</td>
+          <td>${ltv}</td>
+        </tr>`;
+      });
+      document.getElementById('jaar-tbody').innerHTML = rows.join('');
+    }
+
+    document.getElementById('tabel-toggle').addEventListener('click', () => {
+      const wrap = document.getElementById('tabel-wrap');
+      const btn  = document.getElementById('tabel-toggle');
+      const open = wrap.classList.toggle('visible');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.querySelector('span').textContent = open ? 'Verberg jaaroverzicht' : 'Toon jaaroverzicht';
+      document.getElementById('export-csv').style.display = open ? 'flex' : 'none';
+      if (open) buildTable();
+    });
+
+    document.getElementById('export-csv').addEventListener('click', () => {
+      const L = document.getElementById('hyp-bedrag').value;
+      const r = document.getElementById('hyp-rente').value;
+      const n = document.getElementById('hyp-looptijd').value;
+      const header = 'Jaar,Rente (€),Aflossing (€),Totaal betaald (€),Restschuld (€),LTV (%)\n';
+      const waarde = parseFloat(document.getElementById('hyp-waarde').value) || 0;
+      const rows = jaarData.map(d => {
+        const ltv = waarde > 0 ? (d.saldo / waarde * 100).toFixed(1) : '';
+        return `${d.y},${d.renteJaar.toFixed(2)},${d.aflJaar.toFixed(2)},${(d.renteJaar+d.aflJaar).toFixed(2)},${d.saldo.toFixed(2)},${ltv}`;
+      }).join('\n');
+      const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `hypotheek-verloop-${L}eu-${r}pct-${n}jr.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

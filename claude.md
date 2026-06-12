@@ -24,7 +24,7 @@
 ├── inflatie-calculator.html        # ✅ Gereed
 ├── leningvergelijker.html          # ✅ Gereed
 ├── rente-omrekenaar.html           # ✅ Gereed
-├── hypotheek-verloop.html          # 🔲 Gepland (Fase 4)
+├── hypotheek-verloop.html          # ✅ Gereed
 ├── schenking-calculator.html       # 🔲 Gepland (Fase 4)
 ├── lening-amortisatie.html         # 🔲 Gepland (Fase 4)
 ├── css/
@@ -136,10 +136,17 @@ Altijd dezelfde versie gebruiken.
    - EAR-formule: nominaal → effectief per frequentie
    - Vergelijkingstabel + staafdiagram alle frequenties
 
-### 🔲 Fase 4
-8. **Hypotheek-verloop Grafiek** (interactief, meest visueel complex)
-9. **Schenking/Erfenis Calculator**
-10. **Lening Amortisatie Tool** (uitgebreide versie met meer exportopties)
+### ✅ Fase 4 — Deels gereed
+8. **Hypotheek-verloop Grafiek** (`hypotheek-verloop.html`) ✅
+   - LTV-verloopbalk (nu / na RVP / einde)
+   - Omslagpunt + helft-afgelost mijlpalen
+   - Stacked bar: rente vs aflossing per jaar
+   - Lijndiagram restschuld met custom RVP-markerlijn
+   - Uitklapbare jaaroverzichttabel + CSV-export
+
+### 🔲 Fase 4 — Gepland
+9. **Schenking/Erfenis Calculator** (`schenking-calculator.html`)
+10. **Lening Amortisatie Tool** (`lening-amortisatie.html`) — uitgebreide versie met meer exportopties
 
 ---
 

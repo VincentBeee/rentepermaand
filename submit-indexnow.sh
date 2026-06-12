@@ -17,7 +17,8 @@ curl -X POST "https://api.indexnow.org/indexnow" \
       "https://rentepermaand.nl/compound-interest",
       "https://rentepermaand.nl/inflatie-calculator",
       "https://rentepermaand.nl/leningvergelijker",
-      "https://rentepermaand.nl/rente-omrekenaar"
+      "https://rentepermaand.nl/rente-omrekenaar",
+      "https://rentepermaand.nl/hypotheek-verloop"
     ]
   }'
 
