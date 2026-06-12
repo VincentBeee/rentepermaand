@@ -144,9 +144,18 @@ Altijd dezelfde versie gebruiken.
    - Lijndiagram restschuld met custom RVP-markerlijn
    - Uitklapbare jaaroverzichttabel + CSV-export
 
-### 🔲 Fase 4 — Gepland
-9. **Schenking/Erfenis Calculator** (`schenking-calculator.html`)
-10. **Lening Amortisatie Tool** (`lening-amortisatie.html`) — uitgebreide versie met meer exportopties
+9. **Schenking Calculator** (`schenking-calculator.html`) ✅
+   - Relatie-tabs: ouder→kind / grootouder→kleinkind / overigen
+   - Actuele vrijstellingen 2025 + schenkbelasting tarieven
+   - Stacked bar: belastingvrij vs belasting vs rendement per jaar
+   - Lijndiagram: cumulatief netto ontvangen vs eindvermogen
+
+10. **Lening Amortisatie Tool** (`lening-amortisatie.html`) ✅
+    - Annuïtair / lineair toggle + vergelijkingstabel
+    - Extra maandelijkse aflossing + startdatum
+    - Stacked bar rente/aflossing per jaar
+    - Lijndiagram restschuld annuïtair vs lineair
+    - Volledig maandelijks schema + CSV-export + print
 
 ---
 

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F179VKF42F"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F179VKF42F');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lening Amortisatie Tool — Aflossingstabel per Maand Berekenen | RentePerMaand.nl</title>
+  <meta name="description" content="Volledig aflossingsschema per maand voor annuïtaire of lineaire lening. Vergelijk beide vormen, voeg extra aflossing toe en exporteer naar CSV. Gratis online.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/lening-amortisatie">
+  <meta property="og:title" content="Lening Amortisatie Tool — Aflossingstabel Berekenen & Exporteren">
+  <meta property="og:description" content="Maandelijks aflossingsschema voor annuïtaire of lineaire lening. Met extra aflossing, startdatum en CSV-export.">
+  <meta property="og:url" content="https://rentepermaand.nl/lening-amortisatie">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Lening Amortisatie Tool",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Volledig maandelijks aflossingsschema voor annuïtaire of lineaire lening. Vergelijk beide vormen, voeg extra aflossing toe en exporteer het schema als CSV.",
+    "url": "https://rentepermaand.nl/lening-amortisatie",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat is het verschil tussen annuïtair en lineair aflossen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Bij annuïtair aflossen is de maandlast altijd gelijk, maar de verhouding tussen rente en aflossing verschuift: in het begin betaal je veel rente, aan het einde bijna alleen aflossing. Bij lineair aflossen is de maandelijkse aflossing altijd gelijk; de rente daalt elke maand omdat de restschuld daalt. De maandlast is daardoor in het begin hoger dan annuïtair, maar daalt over de looptijd. Totaal betaal je bij lineair minder rente."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoeveel bespaar ik met een extra maandelijkse aflossing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Een extra aflossing verlaagt de restschuld en daarmee de toekomstige rentelasten. Bij een hypotheek van €300.000 op 4% over 30 jaar bespaar je met €100 extra per maand circa €22.000 aan rente en los je 4 jaar eerder af. Gebruik de amortisatietool om het precieze effect voor jouw situatie te berekenen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe exporteer ik het aflossingsschema naar Excel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Klik op de knop 'Exporteer naar CSV' onder de aflossingstabel. Het CSV-bestand kan worden geopend in Excel, Google Sheets of Numbers. In Excel: open het bestand, kies Komma als scheidingsteken bij het importwizard. Het schema bevat datum, maandlast, rente, aflossing, cumulatieve rente en restschuld per maand."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* Form type toggle */
+    .type-toggle {
+      display: flex;
+      border: 2px solid var(--grey-light);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .type-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--grey-text);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .type-btn.active {
+      background: var(--navy);
+      color: white;
+    }
+
+    /* Comparison panel */
+    .comp-panel {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 20px;
+    }
+    .comp-panel h3 {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 14px;
+    }
+    .comp-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #E8ECF0;
+      font-size: 0.84rem;
+    }
+    .comp-row:last-child { border-bottom: none; }
+    .comp-label { color: var(--grey-text); }
+    .comp-ann { color: var(--navy); font-weight: 600; }
+    .comp-lin { color: #2A9D6A; font-weight: 600; }
+    .comp-header .comp-label { font-weight: 700; }
+    .comp-header .comp-ann,
+    .comp-header .comp-lin { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-wrap-tall {
+      position: relative;
+      height: 280px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--grey-text); font-weight: 500; }
+    .legend-dot  { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .legend-dash { width: 20px; height: 3px; border-radius: 2px; flex-shrink: 0; background: repeating-linear-gradient(90deg,#2A9D6A 0 6px, transparent 6px 10px); }
+
+    /* Table */
+    .table-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 2px solid var(--grey-light);
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .table-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .table-toggle .icon { transition: transform 0.3s; }
+    .table-toggle.open .icon { transform: rotate(180deg); }
+    .amort-table-wrap { display: none; margin-top: 16px; overflow-x: auto; max-height: 520px; overflow-y: auto; }
+    .amort-table-wrap.visible { display: block; }
+    .amort-table-wrap table thead { position: sticky; top: 0; background: var(--navy); color: white; }
+    .amort-table-wrap table thead th { background: var(--navy); color: white; }
+
+    /* Export buttons */
+    .export-row {
+      display: none;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .export-row.visible { display: flex; }
+
+    @media print {
+      .site-header, .page-hero, .sidebar, .calc-body > *:not(.amort-table-wrap),
+      .chart-section, .comp-panel, .table-toggle, .export-row,
+      .seo-content, .site-footer, .calc-header { display: none !important; }
+      .amort-table-wrap { display: block !important; max-height: none !important; overflow: visible !important; }
+      .main-wrap { display: block !important; }
+      .calc-card { box-shadow: none !important; border: none !important; }
+      table { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="hypotheek-verloop.html">Hypotheek Verloop</a>
+        <a href="lening-amortisatie.html" class="active">Amortisatie</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Volledig maandelijks aflossingsschema</div>
+        <h1>Lening Amortisatie Tool</h1>
+        <p>Bereken het volledige aflossingsschema per maand voor een annuïtaire of lineaire lening. Vergelijk beide vormen, voeg extra aflossing toe en exporteer het schema als CSV of druk het af.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Leninggegevens</h2>
+            <p>Annuïtair of lineair — met optionele extra aflossing</p>
+          </div>
+          <div class="calc-body">
+
+            <!-- Aflossingsvorm -->
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--grey-text);margin-bottom:10px;">Aflossingsvorm</label>
+              <div class="type-toggle">
+                <button class="type-btn active" data-type="annuitair">Annuïtair</button>
+                <button class="type-btn" data-type="lineair">Lineair</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="am-bedrag">Leenbedrag</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="am-bedrag" value="250000" min="1000" max="5000000" step="1000" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="am-bedrag-slider" min="5000" max="1000000" step="1000" value="250000">
+                <div class="slider-labels"><span>€5.000</span><span>€1.000.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="am-rente">Jaarrente</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="am-rente" value="4.5" min="0.1" max="20" step="0.1" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="am-rente-slider" min="0.5" max="15" step="0.1" value="4.5">
+                  <div class="slider-labels"><span>0,5%</span><span>15%</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="am-looptijd">Looptijd</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="am-looptijd" value="20" min="1" max="50" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="am-looptijd-slider" min="1" max="50" step="1" value="20">
+                  <div class="slider-labels"><span>1 jr</span><span>50 jr</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="am-extra">Extra maandelijkse aflossing</label>
+                <div class="input-wrap has-prefix">
+                  <span class="input-prefix">€</span>
+                  <input type="number" id="am-extra" value="0" min="0" max="50000" step="50" inputmode="numeric">
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="am-startdatum">Startdatum</label>
+                <input type="month" id="am-startdatum" value="2025-01" style="width:100%;padding:12px 16px;border:2px solid var(--grey-light);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:1rem;color:var(--navy);background:var(--cream);">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label" id="maandlast-label">Maandlast</div>
+                  <div class="result-value large accent" id="res-maandlast">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totale rente</div>
+                  <div class="result-value" id="res-totaal-rente">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totaal terugbetalen</div>
+                  <div class="result-value" id="res-totaal">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Werkelijke looptijd</div>
+                  <div class="result-value" id="res-looptijd">—</div>
+                </div>
+              </div>
+
+              <!-- Vergelijking annuïtair vs lineair -->
+              <div class="comp-panel">
+                <h3>Vergelijking annuïtair vs lineair</h3>
+                <div class="comp-row comp-header">
+                  <span class="comp-label"></span>
+                  <span class="comp-ann">Annuïtair</span>
+                  <span class="comp-lin">Lineair</span>
+                </div>
+                <div class="comp-row">
+                  <span class="comp-label">Eerste maandlast</span>
+                  <span class="comp-ann" id="cmp-ann-eerste">—</span>
+                  <span class="comp-lin" id="cmp-lin-eerste">—</span>
+                </div>
+                <div class="comp-row">
+                  <span class="comp-label">Laatste maandlast</span>
+                  <span class="comp-ann" id="cmp-ann-laatste">—</span>
+                  <span class="comp-lin" id="cmp-lin-laatste">—</span>
+                </div>
+                <div class="comp-row">
+                  <span class="comp-label">Totale rente</span>
+                  <span class="comp-ann" id="cmp-ann-rente">—</span>
+                  <span class="comp-lin" id="cmp-lin-rente">—</span>
+                </div>
+                <div class="comp-row">
+                  <span class="comp-label">Rentebesparing lineair</span>
+                  <span class="comp-label">—</span>
+                  <span class="comp-lin" id="cmp-besparing">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 1: Rente vs aflossing per jaar -->
+            <div class="chart-section">
+              <h3>Rente vs Aflossing per jaar</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="am-bar-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#E05A40"></div> Rente (annuïtair)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Aflossing (annuïtair)</div>
+              </div>
+            </div>
+
+            <!-- Chart 2: Restschuld per maand — beide vormen -->
+            <div class="chart-section">
+              <h3>Restschuld — annuïtair vs lineair</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="am-schuld-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D;opacity:0.7"></div> Restschuld annuïtair</div>
+                <div class="legend-item"><div class="legend-dash"></div> Restschuld lineair</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Aflossingstabel -->
+        <div class="calc-card" style="margin-top:20px;">
+          <div class="calc-header">
+            <h2>Maandelijks aflossingsschema</h2>
+            <p>Volledig overzicht per maand — inclusief datum en cumulatieve rente</p>
+          </div>
+          <div class="calc-body">
+            <button class="table-toggle" id="tabel-toggle" aria-expanded="false">
+              <span>Toon aflossingstabel</span>
+              <span class="icon">▼</span>
+            </button>
+            <div class="amort-table-wrap" id="tabel-wrap">
+              <table id="amort-tabel">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Datum</th>
+                    <th>Maandlast</th>
+                    <th>Rente</th>
+                    <th>Aflossing</th>
+                    <th>Cum. rente</th>
+                    <th>Restschuld</th>
+                  </tr>
+                </thead>
+                <tbody id="amort-tbody"></tbody>
+              </table>
+            </div>
+            <div class="export-row" id="export-row">
+              <button class="export-btn" id="export-csv">⬇ Exporteer CSV</button>
+              <button class="export-btn" id="print-btn" style="background:white;border:2px solid var(--navy);color:var(--navy);">🖨 Afdrukken</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Annuïtair vs Lineair</h3>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Annuïtair:</strong> vaste maandlast, in begin veel rente. Handig voor budgetplanning; meest voorkomend bij hypotheken.</p>
+          </div>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Lineair:</strong> vaste aflossing per maand, dalende maandlast. Totaal minder rente, maar beginlasten hoger.</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Vuistregel:</strong> bij een lange looptijd op hoge rente is lineair duidelijk goedkoper. Bij korte looptijden is het verschil klein.</p>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Extra aflossen</h3>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p>€100 extra per maand op een 30-jarige hypotheek van €300.000 op 4% scheelt al snel €20.000–25.000 aan totale rente en 4 jaar looptijd.</p>
+          </div>
+          <div class="tip-box">
+            <p>Controleer de boetevrijstelling bij je bank — de meeste banken staan 10–20% extra aflossing per jaar toe zonder boete.</p>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Gerelateerde tools</h3>
+          <nav class="related-tools">
+            <a href="annuiteitencalculator.html">
+              <div class="tool-icon">📊</div>
+              Annuïteiten Calculator
+            </a>
+            <a href="extra-aflossen.html">
+              <div class="tool-icon">💸</div>
+              Extra Aflossen
+            </a>
+            <a href="hypotheek-verloop.html">
+              <div class="tool-icon">🏠</div>
+              Hypotheek Verloop
+            </a>
+            <a href="leningvergelijker.html">
+              <div class="tool-icon">⚖️</div>
+              Leningvergelijker
+            </a>
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is een amortisatieschema?</h2>
+      <p>Een <strong>amortisatieschema</strong> (ook wel aflossingstabel of aflossingschema) is een volledig overzicht van alle betalingen op een lening — maand voor maand, over de gehele looptijd. Voor elke betaling toont het schema: de datum, het totale maandbedrag, het deel dat naar rente gaat, het deel dat aflost op de schuld, de gecumuleerde rente tot dat moment en de resterende schuld na die betaling.</p>
+      <p>Een amortisatieschema is onmisbaar voor iedereen die een hypotheek of lening heeft en precies wil weten wanneer welk deel van zijn betaling waarheen gaat. Het is ook handig bij belastingaangifte (hypotheekrenteaftrek) en bij de beslissing of extra aflossen zinvol is.</p>
+
+      <h2>Annuïtair versus lineair aflossen: wat kies je?</h2>
+      <p>Er zijn twee hoofdvormen van aflossen:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Annuïtaire aflossing — formule</div>
+        <div class="formula">
+          A = <var>L</var> × [<var>r</var>(1+<var>r</var>)<sup><var>n</var></sup>] / [(1+<var>r</var>)<sup><var>n</var></sup> − 1]
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">A</span> = vaste maandlast<br>
+          <span style="color:#F4C560">L</span> = leenbedrag<br>
+          <span style="color:#F4C560">r</span> = maandrente (jaarrente ÷ 12)<br>
+          <span style="color:#F4C560">n</span> = looptijd in maanden
+        </div>
+      </div>
+
+      <p><strong>Annuïtair:</strong> De maandlast is altijd gelijk. In de eerste maanden bestaat die hoofdzakelijk uit rente; naarmate de schuld daalt, stijgt het aandeel aflossing. De totale rente over de looptijd is hoger dan bij lineair aflossen.</p>
+
+      <div class="formula-box" style="margin-top:20px;">
+        <div class="formula-label">Lineaire aflossing — formule</div>
+        <div class="formula">
+          Aflossing = <var>L</var> ÷ <var>n</var> (vast per maand)<br>
+          Maandlast<sub>m</sub> = Aflossing + (Restschuld<sub>m</sub> × <var>r</var>)
+        </div>
+      </div>
+
+      <p><strong>Lineair:</strong> De maandelijkse aflossing is altijd gelijk. De rente daalt elke maand omdat de restschuld daalt — en daarmee ook de totale maandlast. De eerste maandlast is hoger dan bij annuïtair; de laatste maandlast lager. De totale rente over de looptijd is lager.</p>
+
+      <h2>Hoeveel bespaar je met extra aflossen?</h2>
+      <p>Extra aflossen verlaagt direct de restschuld, waardoor de toekomstige renteberekening gunstiger uitvalt. Dit heeft twee effecten: minder totale rente en een kortere werkelijke looptijd. De besparing is groter naarmate de rente hoger is en het resterende aantal maanden groter.</p>
+      <p>De lening amortisatie tool berekent de werkelijke looptijd inclusief extra aflossingen, zodat je exact ziet hoeveel maanden eerder je schuldenvrij bent en wat de rentebesparing is.</p>
+
+      <h2>CSV-export en afdrukken: voor Excel en belastingaangifte</h2>
+      <p>De amortisatietool biedt twee exportopties:</p>
+      <ul>
+        <li><strong>CSV-export:</strong> download het volledige maandschema als CSV-bestand, inclusief datum per betaling. Dit bestand is direct te openen in Excel, Google Sheets of Numbers.</li>
+        <li><strong>Afdrukken:</strong> de afdrukweergave toont alleen de tabel, zonder de calculator of grafieken. Handig voor archivering of bespreking met een adviseur.</li>
+      </ul>
+      <p>Voor de belastingaangifte (hypotheekrenteaftrek) is de kolom "Rente" per maand het relevante getal. De kolom "Cumulatieve rente" toont het totaal betaalde rentebedrag tot en met die maand.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Welke aflossingsvorm is beter: annuïtair of lineair?</dt>
+          <dd>Dat hangt af van je situatie. Lineair is goedkoper (minder totale rente) maar vereist hogere beginbetalingen. Als de hogere beginlast geen probleem is, spaar je met lineair duizenden euro's. Annuïtair geeft meer zekerheid door de vaste maandlast — handig als je met een strak budget werkt.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik het schema exporteren naar Excel?</dt>
+          <dd>Ja. Klik op "Exporteer CSV" en open het bestand in Excel. Kies bij het importeren "komma" als scheidingsteken (of open het bestand direct vanuit Excel — nieuwere versies herkennen CSV automatisch). Het schema bevat alle kolommen inclusief datum per betaling.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Hoe wordt de looptijdverkorting bij extra aflossen berekend?</dt>
+          <dd>De calculator bouwt het volledige maandschema op met de extra aflossing meegenomen in de berekening. Zodra de restschuld 0 bereikt, stopt de tabel. Het verschil in aantal maanden met en zonder extra aflossing is de looptijdverkorting.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is deze tool ook geschikt voor een persoonlijke lening of autolening?</dt>
+          <dd>Ja. De formules zijn identiek voor elke annuïtaire of lineaire lening, ongeacht het doel. Vul het leenbedrag, de rente en de looptijd in — het schema geldt evengoed voor een persoonlijke lening, een autolening of een zakelijke lening.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="hypotheek-verloop.html">Hypotheek Verloop</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+        <a href="schenking-calculator.html">Schenking Calculator</a>
+        <a href="lening-amortisatie.html">Amortisatie Tool</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let aflossingType = 'annuitair';
+    let chartBar   = null;
+    let chartSchuld = null;
+    let scheduleMonths = [];
+
+    const fmtEur    = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtEurDec = v => '€ ' + v.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('am-bedrag'),   document.getElementById('am-bedrag-slider'));
+    syncPair(document.getElementById('am-rente'),    document.getElementById('am-rente-slider'));
+    syncPair(document.getElementById('am-looptijd'), document.getElementById('am-looptijd-slider'));
+    document.getElementById('am-extra').addEventListener('input', calculate);
+    document.getElementById('am-startdatum').addEventListener('change', calculate);
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        aflossingType = btn.dataset.type;
+        document.getElementById('maandlast-label').textContent =
+          aflossingType === 'annuitair' ? 'Maandlast' : 'Eerste maandlast';
+        calculate();
+      });
+    });
+
+    function annuiteit(L, r, n) {
+      if (r === 0) return L / n;
+      return L * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+    }
+
+    function buildAnnuitair(L, r, n, extra) {
+      const ann = annuiteit(L, r, n);
+      const months = [];
+      let saldo = L;
+      let cumRente = 0;
+      for (let m = 1; saldo > 0.005 && m <= n + 1; m++) {
+        const renteDeel = saldo * r;
+        const annDeel   = Math.min(ann + extra, saldo + renteDeel);
+        const aflDeel   = annDeel - renteDeel;
+        saldo = Math.max(0, saldo - aflDeel);
+        cumRente += renteDeel;
+        months.push({ m, maandlast: annDeel, renteDeel, aflDeel, cumRente, saldo });
+      }
+      return { eerste: ann + extra, laatste: months.at(-1)?.maandlast ?? ann + extra, months };
+    }
+
+    function buildLineair(L, r, n, extra) {
+      const vAfl  = L / n;
+      const months = [];
+      let saldo = L;
+      let cumRente = 0;
+      for (let m = 1; saldo > 0.005 && m <= n + 1; m++) {
+        const renteDeel = saldo * r;
+        const aflDeel   = Math.min(vAfl + extra, saldo);
+        const maandlast = renteDeel + aflDeel;
+        saldo = Math.max(0, saldo - aflDeel);
+        cumRente += renteDeel;
+        months.push({ m, maandlast, renteDeel, aflDeel, cumRente, saldo });
+      }
+      return { eerste: months[0]?.maandlast ?? 0, laatste: months.at(-1)?.maandlast ?? 0, months };
+    }
+
+    function monthLabel(startYear, startMonth, idx) {
+      const d = new Date(startYear, startMonth - 1 + idx, 1);
+      return d.toLocaleDateString('nl-NL', { month: 'short', year: 'numeric' });
+    }
+
+    function calculate() {
+      const L     = parseFloat(document.getElementById('am-bedrag').value)   || 0;
+      const j     = parseFloat(document.getElementById('am-rente').value)    || 0;
+      const jaren = parseInt(document.getElementById('am-looptijd').value)   || 0;
+      const extra = parseFloat(document.getElementById('am-extra').value)    || 0;
+      const [sy, sm] = document.getElementById('am-startdatum').value.split('-').map(Number);
+
+      if (L <= 0 || j <= 0 || jaren <= 0) return;
+
+      const r = j / 100 / 12;
+      const n = jaren * 12;
+
+      const ann = buildAnnuitair(L, r, n, extra);
+      const lin = buildLineair(L, r, n, extra);
+
+      // Use selected type for primary display
+      const sel = aflossingType === 'annuitair' ? ann : lin;
+      scheduleMonths = sel.months;
+
+      const totaalRente = sel.months.reduce((s, m) => s + m.renteDeel, 0);
+      const totaal      = L + totaalRente;
+
+      document.getElementById('res-maandlast').textContent    = fmtEurDec(sel.eerste);
+      document.getElementById('res-totaal-rente').textContent = fmtEur(totaalRente);
+      document.getElementById('res-totaal').textContent       = fmtEur(totaal);
+      document.getElementById('res-looptijd').textContent     =
+        sel.months.length < n
+          ? sel.months.length + ' mnd (' + (sel.months.length/12).toFixed(1) + ' jr)'
+          : jaren + ' jaar';
+
+      // Comparison
+      const annRente = ann.months.reduce((s, m) => s + m.renteDeel, 0);
+      const linRente = lin.months.reduce((s, m) => s + m.renteDeel, 0);
+      document.getElementById('cmp-ann-eerste').textContent  = fmtEurDec(ann.eerste);
+      document.getElementById('cmp-lin-eerste').textContent  = fmtEurDec(lin.eerste);
+      document.getElementById('cmp-ann-laatste').textContent = fmtEurDec(ann.laatste);
+      document.getElementById('cmp-lin-laatste').textContent = fmtEurDec(lin.laatste);
+      document.getElementById('cmp-ann-rente').textContent   = fmtEur(annRente);
+      document.getElementById('cmp-lin-rente').textContent   = fmtEur(linRente);
+      document.getElementById('cmp-besparing').textContent   = '− ' + fmtEur(annRente - linRente);
+
+      // Yearly aggregate for bar chart (selected type)
+      const yearly = [];
+      for (let y = 1; y <= jaren; y++) {
+        const slice = sel.months.filter(m => m.m >= (y-1)*12+1 && m.m <= y*12);
+        if (!slice.length) break;
+        yearly.push({
+          y,
+          rente:     slice.reduce((s, m) => s + m.renteDeel, 0),
+          aflossing: slice.reduce((s, m) => s + m.aflDeel,   0)
+        });
+      }
+
+      buildChartBar(yearly, aflossingType);
+      buildChartSchuld(ann.months, lin.months, n, sy, sm);
+
+      if (document.getElementById('tabel-wrap').classList.contains('visible')) {
+        buildTable(sy, sm);
+      }
+    }
+
+    function buildChartBar(yearly, type) {
+      const ctx = document.getElementById('am-bar-chart').getContext('2d');
+      if (chartBar) chartBar.destroy();
+      const labels = yearly.map(d => 'Jaar ' + d.y);
+      chartBar = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Rente',     data: yearly.map(d => Math.round(d.rente)),     backgroundColor: '#E05A40', borderRadius: 3, stack: 's' },
+            { label: 'Aflossing', data: yearly.map(d => Math.round(d.aflossing)), backgroundColor: '#2A9D6A', borderRadius: 3, stack: 's' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': € ' + c.parsed.y.toLocaleString('nl-NL') } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { stacked: true, grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    function buildChartSchuld(annMonths, linMonths, n, sy, sm) {
+      const ctx = document.getElementById('am-schuld-chart').getContext('2d');
+      if (chartSchuld) chartSchuld.destroy();
+
+      // Sample yearly to keep chart clean
+      const labels = [];
+      const annData = [];
+      const linData = [];
+      const stepYears = Math.max(1, Math.ceil(n / 12 / 20));
+
+      for (let yr = 0; yr <= n/12; yr += stepYears) {
+        const mIdx = Math.min(Math.round(yr * 12), n) - 1;
+        labels.push('Jaar ' + yr);
+        annData.push(mIdx < 0 ? null : Math.round(annMonths[Math.min(mIdx, annMonths.length - 1)]?.saldo ?? 0));
+        linData.push(mIdx < 0 ? null : Math.round(linMonths[Math.min(mIdx, linMonths.length - 1)]?.saldo ?? 0));
+      }
+
+      chartSchuld = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Annuïtair',
+              data: annData,
+              borderColor: 'rgba(15,31,61,0.75)',
+              backgroundColor: 'rgba(15,31,61,0.06)',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Lineair',
+              data: linData,
+              borderColor: '#2A9D6A',
+              backgroundColor: 'rgba(42,157,106,0.06)',
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': € ' + (c.parsed.y ?? 0).toLocaleString('nl-NL') } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D' } },
+            y: { grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    function buildTable(sy, sm) {
+      const rows = scheduleMonths.map(m => {
+        const datum = monthLabel(sy, sm, m.m - 1);
+        return `<tr>
+          <td>${m.m}</td>
+          <td>${datum}</td>
+          <td>${fmtEurDec(m.maandlast)}</td>
+          <td>${fmtEurDec(m.renteDeel)}</td>
+          <td>${fmtEurDec(m.aflDeel)}</td>
+          <td>${fmtEurDec(m.cumRente)}</td>
+          <td>${fmtEurDec(m.saldo)}</td>
+        </tr>`;
+      });
+      document.getElementById('amort-tbody').innerHTML = rows.join('');
+    }
+
+    document.getElementById('tabel-toggle').addEventListener('click', () => {
+      const wrap = document.getElementById('tabel-wrap');
+      const btn  = document.getElementById('tabel-toggle');
+      const row  = document.getElementById('export-row');
+      const open = wrap.classList.toggle('visible');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.querySelector('span').textContent = open ? 'Verberg aflossingstabel' : 'Toon aflossingstabel';
+      row.classList.toggle('visible', open);
+      if (open) {
+        const [sy, sm] = document.getElementById('am-startdatum').value.split('-').map(Number);
+        buildTable(sy, sm);
+      }
+    });
+
+    document.getElementById('export-csv').addEventListener('click', () => {
+      const L     = document.getElementById('am-bedrag').value;
+      const r     = document.getElementById('am-rente').value;
+      const n     = document.getElementById('am-looptijd').value;
+      const [sy, sm] = document.getElementById('am-startdatum').value.split('-').map(Number);
+      const header = 'Maand,Datum,Maandlast (€),Rente (€),Aflossing (€),Cumulatieve rente (€),Restschuld (€)\n';
+      const rows = scheduleMonths.map(m => {
+        const datum = monthLabel(sy, sm, m.m - 1);
+        return `${m.m},"${datum}",${m.maandlast.toFixed(2)},${m.renteDeel.toFixed(2)},${m.aflDeel.toFixed(2)},${m.cumRente.toFixed(2)},${m.saldo.toFixed(2)}`;
+      }).join('\n');
+      const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `amortisatie-${L}eu-${r}pct-${n}jr-${aflossingType}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('print-btn').addEventListener('click', () => {
+      window.print();
+    });
+
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>

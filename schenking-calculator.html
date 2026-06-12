@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F179VKF42F"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F179VKF42F');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schenking Calculator — Belastingvrij Schenken Berekenen | RentePerMaand.nl</title>
+  <meta name="description" content="Bereken hoeveel schenkbelasting je betaalt en hoeveel je belastingvrij kunt schenken. Met vrijstellingen 2025 voor kinderen, kleinkinderen en anderen.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://rentepermaand.nl/schenking-calculator">
+  <meta property="og:title" content="Schenking Calculator — Belastingvrij Schenken Berekenen 2025">
+  <meta property="og:description" content="Bereken de schenkbelasting en het eindvermogen bij jaarlijkse of eenmalige schenkingen. Actuele vrijstellingen 2025.">
+  <meta property="og:url" content="https://rentepermaand.nl/schenking-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Schenking Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "description": "Bereken de schenkbelasting en het eindvermogen bij jaarlijkse of eenmalige schenkingen aan kinderen, kleinkinderen of anderen. Actuele vrijstellingen 2025.",
+    "url": "https://rentepermaand.nl/schenking-calculator",
+    "inLanguage": "nl-NL"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Hoeveel mag je belastingvrij schenken in 2025?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In 2025 mag je jaarlijks belastingvrij schenken: aan kinderen €6.633, aan kleinkinderen en anderen €2.658. Ouders mogen hun kind (18–40 jaar) eenmalig een verhoogde vrijstelling benutten van €31.813. Bedragen boven deze vrijstellingen zijn belast met schenkbelasting."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoeveel schenkbelasting betaal ik?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Schenkbelasting wordt betaald door de ontvanger over het bedrag boven de vrijstelling. Voor kinderen: 10% over de eerste €152.368, 20% daarboven. Voor kleinkinderen: 18% over de eerste €152.368, 36% daarboven. Voor overigen: 30% over de eerste €122.269, 40% daarboven."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat is het voordeel van jaarlijks schenken boven erfenis?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Door jaarlijks de vrijstelling te benutten, verschuif je vermogen belastingvrij naar de volgende generatie. Na 10 jaar jaarlijkse schenking van €6.633 aan een kind is €66.330 belastingvrij overgedragen. Bij een erfenis geldt een eenmalige vrijstelling (voor kinderen €23.267 in 2025) en daarna 10–20% erfbelasting."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    .relatie-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .relatie-tab {
+      padding: 8px 16px;
+      border: 2px solid var(--grey-light);
+      border-radius: 20px;
+      background: none;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--grey-text);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .relatie-tab.active, .relatie-tab:hover {
+      border-color: var(--gold);
+      color: var(--navy);
+      background: rgba(232,160,32,0.08);
+    }
+    .relatie-tab.active { background: rgba(232,160,32,0.15); }
+
+    .vrijstelling-banner {
+      background: rgba(42,157,106,0.12);
+      border: 1px solid rgba(42,157,106,0.3);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .vrijstelling-banner .vb-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .vrijstelling-banner .vb-text { font-size: 0.85rem; color: var(--grey-text); }
+    .vrijstelling-banner .vb-text strong { color: #2A9D6A; font-size: 0.95rem; }
+
+    .tax-breakdown {
+      margin-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 16px;
+    }
+    .tax-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      font-size: 0.85rem;
+    }
+    .tax-row:last-child { border-bottom: none; }
+    .tax-label { color: rgba(255,255,255,0.55); }
+    .tax-value { font-weight: 600; color: white; }
+    .tax-value.green  { color: #2A9D6A; }
+    .tax-value.orange { color: #E8A020; }
+    .tax-value.red    { color: #E05A40; }
+
+    .chart-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--grey-light);
+    }
+    .chart-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey-text);
+      margin-bottom: 12px;
+    }
+    .chart-wrap-tall {
+      position: relative;
+      height: 280px;
+      margin-top: 8px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--grey-text); font-weight: 500; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">%</span>
+        Rente<span>PerMaand</span>
+      </a>
+      <nav class="site-nav" aria-label="Hoofdnavigatie">
+        <a href="annuiteitencalculator.html">Annuïteiten</a>
+        <a href="hypotheek-verloop.html">Hypotheek Verloop</a>
+        <a href="schenking-calculator.html" class="active">Schenking</a>
+        <a href="index.html#alle-tools">Alle tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div class="eyebrow">Actuele vrijstellingen 2025</div>
+        <h1>Schenking Calculator</h1>
+        <p>Bereken hoeveel je jaarlijks belastingvrij kunt schenken, wat de schenkbelasting is bij bedragen boven de vrijstelling en wat het geschonken vermogen uiteindelijk waard wordt.</p>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+
+      <!-- ── CALCULATOR ── -->
+      <div>
+        <div class="calc-card">
+          <div class="calc-header">
+            <h2>Stel je schenking in</h2>
+            <p>Kies de relatie en het schenkingsbedrag</p>
+          </div>
+          <div class="calc-body">
+
+            <!-- Relatie tabs -->
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--grey-text);margin-bottom:10px;">Relatie schenker → ontvanger</label>
+              <div class="relatie-tabs">
+                <button class="relatie-tab active" data-relatie="kind">Ouder → Kind</button>
+                <button class="relatie-tab" data-relatie="kleinkind">Grootouder → Kleinkind</button>
+                <button class="relatie-tab" data-relatie="overig">Anderen</button>
+              </div>
+            </div>
+
+            <div class="vrijstelling-banner" id="vrijstelling-banner">
+              <div class="vb-icon">✅</div>
+              <div class="vb-text">
+                Jaarlijkse vrijstelling 2025: <strong id="vb-bedrag">€ 6.633</strong><br>
+                <span id="vb-extra">Eenmalig verhoogd (18–40 jaar): <strong>€ 31.813</strong></span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="schenk-bedrag">Schenkingsbedrag per jaar</label>
+              <div class="input-wrap has-prefix">
+                <span class="input-prefix">€</span>
+                <input type="number" id="schenk-bedrag" value="10000" min="100" max="500000" step="500" inputmode="numeric">
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="schenk-slider" min="1000" max="100000" step="500" value="10000">
+                <div class="slider-labels"><span>€1.000</span><span>€100.000</span></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="schenk-looptijd">Aantal jaren</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="schenk-looptijd" value="10" min="1" max="40" step="1" inputmode="numeric">
+                  <span class="input-suffix">jr</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="schenk-looptijd-slider" min="1" max="40" step="1" value="10">
+                  <div class="slider-labels"><span>1 jr</span><span>40 jr</span></div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="schenk-rendement">Verwacht rendement</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="schenk-rendement" value="5" min="0" max="15" step="0.5" inputmode="decimal">
+                  <span class="input-suffix">%</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="schenk-rendement-slider" min="0" max="12" step="0.5" value="5">
+                  <div class="slider-labels"><span>0%</span><span>12%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-panel" aria-live="polite">
+              <h3>Uitkomst</h3>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Totaal geschonken</div>
+                  <div class="result-value large accent" id="res-totaal-geschonken">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Belastingvrij totaal</div>
+                  <div class="result-value" id="res-belastingvrij" style="color:#2A9D6A">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Totale schenkbelasting</div>
+                  <div class="result-value" id="res-belasting" style="color:#E05A40">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Eindvermogen na <span id="res-looptijd-label">10</span> jaar</div>
+                  <div class="result-value" id="res-eindvermogen" style="color:#E8A020">—</div>
+                </div>
+              </div>
+
+              <div class="tax-breakdown">
+                <div class="tax-row">
+                  <span class="tax-label">Tarief schenkbelasting</span>
+                  <span class="tax-value" id="res-tarief">—</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Netto ontvangen per jaar</span>
+                  <span class="tax-value green" id="res-netto-jaar">—</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Rendement op eindvermogen</span>
+                  <span class="tax-value orange" id="res-rendement-totaal">—</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Totaal netto ontvangen</span>
+                  <span class="tax-value" id="res-netto-totaal">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 1: Jaarlijkse opbouw -->
+            <div class="chart-section">
+              <h3>Vermogensopbouw per jaar</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="schenk-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#2A9D6A"></div> Belastingvrij ontvangen</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#E05A40"></div> Schenkbelasting betaald</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#E8A020"></div> Rendement op vermogen</div>
+              </div>
+            </div>
+
+            <!-- Chart 2: Cumulatief eindvermogen -->
+            <div class="chart-section">
+              <h3>Cumulatief eindvermogen vs totaal netto ontvangen</h3>
+              <div class="chart-wrap-tall">
+                <canvas id="groei-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#0F1F3D;opacity:0.7"></div> Totaal netto ontvangen (na belasting)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#E8A020"></div> Eindvermogen (met rendement)</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Vrijstellingen 2025</h3>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Ouder → Kind:</strong><br>€ 6.633 per jaar (jaarlijkse vrijstelling)</p>
+          </div>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Eenmalig verhoogd (18–40 jr):</strong><br>€ 31.813 vrij besteedbaar</p>
+          </div>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Kleinkinderen / anderen:</strong><br>€ 2.658 per jaar</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Let op:</strong> De verhoogde vrijstelling eigen woning (jubelton) is afgeschaft per 1 januari 2024.</p>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Schenkbelasting tarieven</h3>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Kinderen & partner:</strong><br>10% t/m €152.368 · 20% daarboven</p>
+          </div>
+          <div class="tip-box" style="margin-bottom:8px;">
+            <p><strong>Kleinkinderen:</strong><br>18% t/m €152.368 · 36% daarboven</p>
+          </div>
+          <div class="tip-box">
+            <p><strong>Overigen:</strong><br>30% t/m €122.269 · 40% daarboven</p>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Gerelateerde tools</h3>
+          <nav class="related-tools">
+            <a href="compound-interest.html">
+              <div class="tool-icon">📈</div>
+              Compound Interest
+            </a>
+            <a href="spaardoel-calculator.html">
+              <div class="tool-icon">🎯</div>
+              Spaardoel Calculator
+            </a>
+            <a href="inflatie-calculator.html">
+              <div class="tool-icon">📉</div>
+              Inflatie Calculator
+            </a>
+            <a href="lening-amortisatie.html">
+              <div class="tool-icon">📋</div>
+              Amortisatie Tool
+            </a>
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ── SEO CONTENT ── -->
+    <article class="seo-content">
+
+      <h2>Wat is de schenking calculator?</h2>
+      <p>Met de <strong>schenking calculator</strong> bereken je de financiële impact van jaarlijkse of eenmalige schenkingen. Je ziet hoeveel je belastingvrij kunt schenken op basis van de actuele vrijstellingen 2025, wat de schenkbelasting is bij bedragen daarboven, en hoeveel het geschonken vermogen uiteindelijk waard wordt als de ontvanger het belegt.</p>
+      <p>Schenkingen zijn een populaire manier om vermogen geleidelijk aan de volgende generatie over te dragen. Door jaarlijks de vrijstelling te benutten, kun je over de jaren heen aanzienlijke bedragen belastingvrij overdragen — bedragen die bij een erfenis wel met erfbelasting belast zouden worden.</p>
+
+      <h2>Vrijstellingen schenkbelasting 2025</h2>
+      <p>De Belastingdienst hanteert in 2025 de volgende jaarlijkse vrijstellingen:</p>
+      <ul>
+        <li><strong>Ouder aan kind:</strong> € 6.633 per jaar — elk jaar opnieuw te benutten</li>
+        <li><strong>Anderen (kleinkinderen, vrienden, etc.):</strong> € 2.658 per jaar</li>
+      </ul>
+      <p>Naast de jaarlijkse vrijstelling bestaat er een <strong>eenmalig verhoogde vrijstelling</strong> voor ouders die een bedrag schenken aan een kind van 18 tot 40 jaar: € 31.813 (vrij besteedbaar). Dit is een eenmalig bedrag dat bovenop de jaarlijkse vrijstelling kan worden geschonken, maar slechts één keer in het leven van het kind.</p>
+      <p><strong>Let op:</strong> De verhoogde vrijstelling voor de eigen woning (de "jubelton") is per 1 januari 2024 volledig afgeschaft. Voor schenkingen ten behoeve van de eigen woning gelden nu alleen de gewone jaarlijkse en eenmalige vrijstellingen.</p>
+
+      <h2>Hoe werkt de berekening?</h2>
+      <p>De calculator berekent per jaar het belastbare deel van de schenking — het bedrag boven de jaarlijkse vrijstelling. Op dat bedrag wordt de schenkbelasting berekend op basis van het tarief dat hoort bij de relatie:</p>
+
+      <div class="formula-box">
+        <div class="formula-label">Schenkbelasting per jaar</div>
+        <div class="formula">
+          Belastbaar = max(0, Schenking − Vrijstelling)<br>
+          Belasting = Belastbaar × Tarief
+        </div>
+        <div style="margin-top:14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <span style="color:#F4C560">Kinderen (t/m €152.368):</span> 10%<br>
+          <span style="color:#F4C560">Kleinkinderen (t/m €152.368):</span> 18%<br>
+          <span style="color:#F4C560">Overigen (t/m €122.269):</span> 30%
+        </div>
+      </div>
+
+      <p>Het netto ontvangen bedrag (schenking minus schenkbelasting) wordt vervolgens elk jaar opnieuw belegd tegen het door jou opgegeven rendement. De calculator toont het cumulatieve eindvermogen na de ingestelde looptijd.</p>
+
+      <h2>Schenking versus erfenis: wanneer is schenken voordeliger?</h2>
+      <p>Het voordeel van schenken ten opzichte van een erfenis is tweeledig:</p>
+      <ol>
+        <li><strong>Minder belasting:</strong> Door jaarlijks de vrijstelling te benutten, draag je vermogen over zonder schenkbelasting. Bij een erfenis gelden andere (soms hogere) vrijstellingen en tarieven.</li>
+        <li><strong>Eerder rendement:</strong> Vermogen dat je nu schenkt, kan de ontvanger direct beleggen. Vermogen dat pas bij overlijden wordt geërfd, groeit in de tussentijd bij jou — maar de ontvanger profiteert er pas later van.</li>
+      </ol>
+      <p>Over 20 jaar van de vrijstelling benutten (kind): 20 × € 6.633 = <strong>€ 132.660 belastingvrij</strong> overgedragen. Als dit bedrag over die periode gemiddeld 5% rendement maakt, is het eindvermogen aanzienlijk hoger dan de geschonken som.</p>
+
+      <h2>Veelgestelde vragen</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>Moet ik aangifte doen als ik een schenking ontvang?</dt>
+          <dd>Ja, als de schenking boven de vrijstelling uitkomt. De ontvanger doet aangifte schenkbelasting bij de Belastingdienst, uiterlijk 1 maart van het jaar volgend op de schenking. Schenkingen onder de vrijstelling hoeven niet te worden opgegeven.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Kan ik de vrijstelling van meerdere jaren combineren?</dt>
+          <dd>Nee, de jaarlijkse vrijstelling kan niet worden overgedragen naar een volgend jaar. Gebruik je de vrijstelling één jaar niet volledig, dan vervalt het ongebruikte deel. Alleen de eenmalige verhoogde vrijstelling kan in één keer of verspreid over maximaal drie jaar worden benut.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Telt de schenking van beide ouders apart?</dt>
+          <dd>Nee. Voor de vrijstelling tellen schenkingen van beide ouders samen. Ouders worden als één schenker beschouwd. Je kind kan dus van beide ouders samen maximaal € 6.633 per jaar belastingvrij ontvangen — niet elk € 6.633 apart.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Wat is het verschil tussen erfbelasting en schenkbelasting?</dt>
+          <dd>Erfbelasting wordt geheven over wat je erft na overlijden; schenkbelasting over wat je ontvangt bij leven. De tarieven zijn gelijk, maar de vrijstellingen verschillen: voor kinderen geldt bij erfenis een vrijstelling van € 23.267 (2025), bij schenking € 6.633 per jaar. Door vroeg te beginnen met schenken kun je meer belastingvrij overdragen dan via de erfenisvrijstelling.</dd>
+        </div>
+      </dl>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <nav class="footer-nav">
+        <a href="index.html">Home</a>
+        <a href="annuiteitencalculator.html">Annuïteiten Calculator</a>
+        <a href="extra-aflossen.html">Extra Aflossen</a>
+        <a href="hypotheek-verloop.html">Hypotheek Verloop</a>
+        <a href="spaardoel-calculator.html">Spaardoel Calculator</a>
+        <a href="compound-interest.html">Compound Interest</a>
+        <a href="inflatie-calculator.html">Inflatie Calculator</a>
+        <a href="leningvergelijker.html">Leningvergelijker</a>
+        <a href="rente-omrekenaar.html">Rente-omrekenaar</a>
+        <a href="schenking-calculator.html">Schenking Calculator</a>
+        <a href="lening-amortisatie.html">Amortisatie Tool</a>
+      </nav>
+      <p>© 2025 RentePerMaand.nl — Alle berekeningen zijn indicatief en dienen niet als financieel advies.</p>
+      <p class="footer-disclaimer">RentePerMaand.nl is een onafhankelijke informatiesite. Raadpleeg altijd een financieel adviseur voor persoonlijk advies.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // Vrijstellingen en tarieven 2025
+    const CONFIG = {
+      kind: {
+        vrijstelling: 6633,
+        vrijstellingEenmalig: 31813,
+        tariefLabel: '10% (t/m €152.368) / 20%',
+        brackets: [{ tot: 152368, tarief: 0.10 }, { tot: Infinity, tarief: 0.20 }]
+      },
+      kleinkind: {
+        vrijstelling: 2658,
+        vrijstellingEenmalig: null,
+        tariefLabel: '18% (t/m €152.368) / 36%',
+        brackets: [{ tot: 152368, tarief: 0.18 }, { tot: Infinity, tarief: 0.36 }]
+      },
+      overig: {
+        vrijstelling: 2658,
+        vrijstellingEenmalig: null,
+        tariefLabel: '30% (t/m €122.269) / 40%',
+        brackets: [{ tot: 122269, tarief: 0.30 }, { tot: Infinity, tarief: 0.40 }]
+      }
+    };
+
+    let relatie = 'kind';
+    let chartSchenk = null;
+    let chartGroei  = null;
+
+    const fmtEur = v => '€ ' + Math.round(v).toLocaleString('nl-NL');
+    const fmtPct = v => v.toFixed(1) + '%';
+
+    function calcBelasting(belastbaar, cfg) {
+      if (belastbaar <= 0) return 0;
+      let tax = 0;
+      let prev = 0;
+      for (const { tot, tarief } of cfg.brackets) {
+        const slice = Math.min(belastbaar, tot) - prev;
+        if (slice <= 0) break;
+        tax += slice * tarief;
+        prev = tot;
+        if (belastbaar <= tot) break;
+      }
+      return tax;
+    }
+
+    function syncPair(inp, sl) {
+      inp.addEventListener('input', () => { sl.value = inp.value; calculate(); });
+      sl.addEventListener('input', () => { inp.value = sl.value; calculate(); });
+    }
+
+    syncPair(document.getElementById('schenk-bedrag'),    document.getElementById('schenk-slider'));
+    syncPair(document.getElementById('schenk-looptijd'),  document.getElementById('schenk-looptijd-slider'));
+    syncPair(document.getElementById('schenk-rendement'), document.getElementById('schenk-rendement-slider'));
+
+    document.querySelectorAll('.relatie-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.relatie-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        relatie = btn.dataset.relatie;
+        updateVrijstellingBanner();
+        calculate();
+      });
+    });
+
+    function updateVrijstellingBanner() {
+      const cfg = CONFIG[relatie];
+      document.getElementById('vb-bedrag').textContent = fmtEur(cfg.vrijstelling) + '/jaar';
+      const extraEl = document.getElementById('vb-extra');
+      if (cfg.vrijstellingEenmalig) {
+        extraEl.style.display = '';
+        extraEl.innerHTML = `Eenmalig verhoogd (18–40 jaar): <strong>${fmtEur(cfg.vrijstellingEenmalig)}</strong>`;
+      } else {
+        extraEl.style.display = 'none';
+      }
+    }
+
+    function calculate() {
+      const bedrag    = parseFloat(document.getElementById('schenk-bedrag').value)    || 0;
+      const jaren     = parseInt(document.getElementById('schenk-looptijd').value)    || 0;
+      const rendement = parseFloat(document.getElementById('schenk-rendement').value) || 0;
+      if (bedrag <= 0 || jaren <= 0) return;
+
+      const cfg = CONFIG[relatie];
+      const r   = rendement / 100;
+
+      let totalGeschonken  = 0;
+      let totalVrijgesteld = 0;
+      let totalBelasting   = 0;
+      let totalNetto       = 0;
+
+      const jaarVrijgesteld  = [];
+      const jaarBelasting    = [];
+      const jaarRendement    = [];
+      const jaarCumNetto     = [];
+      const jaarCumVermogen  = [];
+
+      let vermogen = 0;
+
+      for (let y = 1; y <= jaren; y++) {
+        const belastbaar = Math.max(0, bedrag - cfg.vrijstelling);
+        const vrijgesteld = Math.min(bedrag, cfg.vrijstelling);
+        const belasting = calcBelasting(belastbaar, cfg);
+        const netto = bedrag - belasting;
+
+        totalGeschonken  += bedrag;
+        totalVrijgesteld += vrijgesteld;
+        totalBelasting   += belasting;
+        totalNetto       += netto;
+
+        // Vermogen groeit: vorig vermogen + rendement, dan netto inleg toevoegen
+        vermogen = vermogen * (1 + r) + netto;
+
+        const rendementDitJaar = vermogen - totalNetto;
+
+        jaarVrijgesteld.push(Math.round(vrijgesteld));
+        jaarBelasting.push(Math.round(belasting));
+        jaarRendement.push(Math.round(Math.max(0, rendementDitJaar)));
+        jaarCumNetto.push(Math.round(totalNetto));
+        jaarCumVermogen.push(Math.round(vermogen));
+      }
+
+      // Update DOM
+      document.getElementById('res-totaal-geschonken').textContent = fmtEur(totalGeschonken);
+      document.getElementById('res-belastingvrij').textContent     = fmtEur(totalVrijgesteld);
+      document.getElementById('res-belasting').textContent         = fmtEur(totalBelasting);
+      document.getElementById('res-eindvermogen').textContent      = fmtEur(vermogen);
+      document.getElementById('res-looptijd-label').textContent    = jaren;
+      document.getElementById('res-tarief').textContent            = cfg.tariefLabel;
+
+      const belastingPerJaar = bedrag > cfg.vrijstelling
+        ? calcBelasting(bedrag - cfg.vrijstelling, cfg)
+        : 0;
+      document.getElementById('res-netto-jaar').textContent      = fmtEur(bedrag - belastingPerJaar);
+      document.getElementById('res-rendement-totaal').textContent = fmtEur(vermogen - totalNetto);
+      document.getElementById('res-netto-totaal').textContent    = fmtEur(totalNetto);
+
+      buildChartSchenk(jaren, jaarVrijgesteld, jaarBelasting, jaarRendement);
+      buildChartGroei(jaren, jaarCumNetto, jaarCumVermogen);
+    }
+
+    function buildChartSchenk(jaren, vrij, belasting, rend) {
+      const ctx = document.getElementById('schenk-chart').getContext('2d');
+      if (chartSchenk) chartSchenk.destroy();
+      const labels = Array.from({ length: jaren }, (_, i) => 'Jaar ' + (i + 1));
+      chartSchenk = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Belastingvrij', data: vrij,      backgroundColor: '#2A9D6A', borderRadius: 3, stack: 's' },
+            { label: 'Schenkbelasting', data: belasting, backgroundColor: '#E05A40', borderRadius: 3, stack: 's' },
+            { label: 'Rendement',     data: rend,      backgroundColor: '#E8A020', borderRadius: 3, stack: 's' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': € ' + c.parsed.y.toLocaleString('nl-NL') } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { stacked: true, grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    function buildChartGroei(jaren, cumNetto, cumVermogen) {
+      const ctx = document.getElementById('groei-chart').getContext('2d');
+      if (chartGroei) chartGroei.destroy();
+      const labels = Array.from({ length: jaren }, (_, i) => 'Jaar ' + (i + 1));
+      chartGroei = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Netto ontvangen',
+              data: cumNetto,
+              borderColor: 'rgba(15,31,61,0.7)',
+              backgroundColor: 'rgba(15,31,61,0.06)',
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Eindvermogen',
+              data: cumVermogen,
+              borderColor: '#E8A020',
+              backgroundColor: 'rgba(232,160,32,0.1)',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': € ' + c.parsed.y.toLocaleString('nl-NL') } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6B7A8D', maxTicksLimit: 15 } },
+            y: { grid: { color: '#E8ECF0' }, ticks: { font: { size: 11 }, color: '#6B7A8D', callback: v => '€' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+    }
+
+    updateVrijstellingBanner();
+    calculate();
+  })();
+  </script>
+
+</body>
+</html>
